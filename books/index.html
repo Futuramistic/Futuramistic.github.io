@@ -7,13 +7,6 @@ title: Reading Log
 <html lang="en">
 
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E00L9PT3V9"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-E00L9PT3V9');
-  </script>
   <title>{{ site.name }} - Reading Log</title>
 
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -22,18 +15,27 @@ title: Reading Log
 
   <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
   <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
-  <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+      rel="stylesheet" type="text/css">
+  <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 
   <style>
+    body, table, td, p, li, a, strong, h1, h2, h3, h4 {
+      font-family: 'Google Sans', sans-serif;
+    }
+
     /* Book Grid Layout */
     .bookshelf-container {
       width: 100%;
       max-width: 800px;
       margin: 0 auto;
       padding: 2.5%;
-      font-family: 'Lato', sans-serif;
+      font-family: 'Google Sans', sans-serif;
     }
-    
+
     .year-section {
       margin-bottom: 40px;
     }
@@ -104,31 +106,32 @@ title: Reading Log
 
 <body>
   <div class="bookshelf-container">
-    
+
     <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-bottom:40px;">
       <tr>
         <td style="width:70%;vertical-align:middle">
-          <h1>My Reading Log</h1>
+          <h1>My Reading Log&nbsp;<i class="fas fa-book"></i></h1>
 
           <p>
-            A visual log of the books I have read, organized by year, from 2026 onwards.</p> 
+            A visual log of the books I have read, organized by year, from 2026 onwards.
+          </p>
           <p>
-            <a href="{{ '/' | relative_url }}" style="text-decoration: none; font-weight: bold;"> ← Back to Home</a>
+            <a href="{{ '/' | relative_url }}" style="text-decoration: none; font-weight: bold;"><i class="fas fa-arrow-left"></i>&nbsp;Back to Home&nbsp;<i class="fas fa-home"></i></a>
           </p>
         </td>
       </tr>
     </table>
-    
-    {% assign booksByYear = site.books | sort: "date" | reverse | group_by_exp:"book", "book.date | date: '%Y'" %}    
+
+    {% assign booksByYear = site.books | sort: "date" | reverse | group_by_exp:"book", "book.date | date: '%Y'" %}
     {% for year in booksByYear %}
       <div class="year-section">
         <h2 class="year-title">{{ year.name }} ({{ year.items | size }} books)</h2>
-        
+
         <div class="book-grid">
           {% for book in year.items %}
-            <a href={{book.external_link}} class="book-item">
+            <a href="{{ book.external_link }}" class="book-item">
               <img src="{{ book.image }}" alt="{{ book.title }}" class="book-cover" loading="lazy">
-              
+
               <div class="book-info">
                 <strong>{{ book.title }}</strong>
                 <em>by {{ book.author }}</em>
