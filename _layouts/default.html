@@ -2,15 +2,6 @@
 <html lang="en">
 
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E00L9PT3V9"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-E00L9PT3V9');
-  </script>
   <title>{{ site.name }}</title>
 
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -20,7 +11,21 @@
 
   <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
   <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
-  <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+      rel="stylesheet" type="text/css">
+  <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+  <style>
+    body, table, td, p, li, a, strong {
+      font-family: 'Google Sans', sans-serif;
+    }
+    h1, h2, h3, h4 {
+      font-family: 'Google Sans', sans-serif;
+    }
+  </style>
 
 </head>
 
@@ -35,35 +40,30 @@
                 Mateusz Nowak
               </h1>
               <p>
-                I am a second-year PhD student in the <a href="https://sites.dartmouth.edu/lisplab/mateusz-nowak/">LISP Lab</a> at the <a href="https://engineering.dartmouth.edu/">Thayer School of Engineering</a>, 
+                I am a second-year PhD candidate in the <a href="https://sites.dartmouth.edu/lisplab/mateusz-nowak/">LISP Lab</a> at the <a href="https://engineering.dartmouth.edu/">Thayer School of Engineering</a>, 
                 <a href="https://home.dartmouth.edu/">Dartmouth College</a>, where I work on 3D computer vision and multi-modal machine learning. 
                 My PhD advisor is <a href="https://sites.dartmouth.edu/lisplab/sang-peter-chin/">Peter Chin</a>. 
-                Additionally, in Winter 2025, I served as the head teaching assistant for <a href="https://engineering.dartmouth.edu/courses/engs106">ENGS106</a> at Dartmouth.
               </p>
               <p>
-                My background spans several research and industry roles with a strong focus on 3D computer vision and machine learning. 
-                Most recently, in the summer of 2025, I joined <a href="https://www.autodesk.com/">Autodesk Research UK</a> in London as an AI Research Scientist intern to work on vision-language models and 3D. 
+                Most recently, in the summer of 2025, I joined <a href="https://www.autodesk.com/">Autodesk Research UK</a> in London as an AI Research Scientist intern to work on vision-language models and 3D vision. 
                 Before that, I worked as a Machine Learning & Computer Vision intern on 3D Gaussian Splatting at <a href="https://research.samsung.com/sruk">Samsung Research UK (SRUK)</a> in Staines, UK, 
                 and as an AI Algorithm Development intern at <a href="https://www.huawei.com/en/">Huawei Technologies R&D UK</a> in Cambridge, UK, working on Neural Radiance Fields. 
-                My professional journey began in London with my first internship at <a href="https://www.mizuhogroup.com/emea">Mizuho EMEA</a>, where I worked as an Information Systems Department Summer Intern.
               </p>
               <p>
-
                 I hold an MSc in Computer Science with a major in Visual and Interactive Computing from <a href="https://inf.ethz.ch/u">ETH Zurich</a>. 
-                During my time there, I completed my master's thesis in collaboration with <a href="https://studios.disneyresearch.com/">Disney Research Zurich</a>, focusing on Neural Architecture Search 
+                I completed my master's thesis in collaboration with <a href="https://studios.disneyresearch.com/">Disney Research Zurich</a>, focusing on Neural Architecture Search 
                 under <a href="https://studios.disneyresearch.com/people/tunc-aydin/">Tunc Aydin</a> and <a href="https://studios.disneyresearch.com/people/farnood-salehi/">Farnood Salehi</a>. 
-                Previously, I earned my BSc in Computer Science (specializing in Artificial Intelligence) from <a href="https://www.kcl.ac.uk/informatics">King's College London</a>.
-                At King's, I served as a teaching assistant for <a href="https://www.kcl.ac.uk/people/christopher-hampson">Christopher Hampson</a> 
-                (<a href="https://www.kcl.ac.uk/abroad/module-options/module?id=e01a4900-771b-48dc-9aa0-c646cf4afa28">5CCS2FC2</a>), <a href="https://www.kcl.ac.uk/people/odinaldo-rodrigues">Odinaldo Rodrigues</a> 
-                (<a href="https://www.kcl.ac.uk/abroad/module-options/module?id=0acd4500-c070-4512-8884-fe4b6a6383c5">4CCS1ELA</a>), and Costas Iliopoulos
-                (<a href="https://www.kcl.ac.uk/abroad/module-options/module?id=4d076474-f0bf-4927-b4fc-bea75284fde6">4CCS1DST</a>), and also completed a year-long exchange at the <a href="https://www.comp.nus.edu.sg/cs/">National University of Singapore</a>.
+                Previously, I earned my BSc in Computer Science (specializing in Artificial Intelligence) from <a href="https://www.kcl.ac.uk/informatics">King's College London</a> and completed a year-long exchange at the <a href="https://www.comp.nus.edu.sg/cs/">National University of Singapore</a>.
+              </p>
+              <p>
+                I have also taught &mdash; as head TA for ENGS106 at Dartmouth in Winter 2025, and as a TA at King's for modules in foundations of computing, elementary logic, and data structures in 2020&ndash;2021.
               </p>
               <p style="text-align:center">
-                <a target="_blank" href="https://mailhide.io/e/B8TyS"> Email</a> &nbsp;/&nbsp;
-                <a href="https://github.com/Futuramistic">GitHub</a> &nbsp;/&nbsp;
-                <a href="https://scholar.google.com/citations?user=Os-TTEkAAAAJ&hl=en">Google Scholar</a> &nbsp;/&nbsp;
-                <a href="https://www.linkedin.com/in/mateusz-n-39730b185/"> LinkedIn </a> &nbsp;/&nbsp;
-                <a href="{{ '/books/' | relative_url }}"> Reading Log </a>
+                Email: mateusz.m.nowak.th[at]dartmouth[dot][edu(cation)] <br>
+                <a href="https://github.com/Futuramistic"><i class="fab fa-github"></i>&nbsp;GitHub</a> &nbsp;/&nbsp;
+                <a href="https://scholar.google.com/citations?user=Os-TTEkAAAAJ&hl=en"><i class="ai ai-google-scholar"></i>&nbsp;Google Scholar</a> &nbsp;/&nbsp;
+                <a href="https://www.linkedin.com/in/mateusz-n-39730b185/"><i class="fab fa-linkedin"></i>&nbsp;LinkedIn</a> &nbsp;/&nbsp;
+                <a href="{{ '/books/' | relative_url }}"><i class="fas fa-book"></i>&nbsp;Reading Log</a>
               </p>
             </td>
             <td style="padding:2.5%;width:40%;max-width:40%">
@@ -99,32 +99,42 @@
               <br>
               <em>{{post.venue}}</em>, {{ post.date | date: "%Y" }}
               <br>
+              {% assign sep = "" %}
+              {% if post.paper %}
+                {{ sep }}<a href="{{post.paper}}"><i class="fas fa-file-pdf"></i>&nbsp;Paper</a>
+                {% assign sep = " / " %}
+              {% endif %}
               {% if post.arxiv %}
-              <a href="{{post.arxiv}}">arxiv</a>
+                {{ sep }}<a href="{{post.arxiv}}"><i class="ai ai-arxiv"></i>&nbsp;arXiv</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.arxivold %}
-              <a href="{{post.arxivold}}">arxiv (old)</a>
-              {% endif %}
-              {% if post.paper %}
-              <a href="{{post.paper}}">paper</a>
+                {{ sep }}<a href="{{post.arxivold}}"><i class="ai ai-arxiv"></i>&nbsp;arXiv (old)</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.video %}
-              / <a href="{{post.video}}">video</a>
+                {{ sep }}<a href="{{post.video}}"><i class="fas fa-video"></i>&nbsp;Video</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.code %}
-              / <a href="{{post.code}}">code</a>
+                {{ sep }}<a href="{{post.code}}"><i class="fab fa-github"></i>&nbsp;GitHub</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.poster %}
-              / <a href="{{post.poster}}">poster</a>
+                {{ sep }}<a href="{{post.poster}}"><i class="fas fa-image"></i>&nbsp;Poster</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.slides %}
-              / <a href="{{post.slides}}">slides</a>
+                {{ sep }}<a href="{{post.slides}}"><i class="fas fa-person-chalkboard"></i>&nbsp;Slides</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.website %}
-              / <a href="{{post.website}}">project</a>
+                {{ sep }}<a href="{{post.website}}"><i class="fas fa-project-diagram"></i>&nbsp;Project</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.youtube %}
-              / <a href="{{post.youtube}}">youtube</a>
+                {{ sep }}<a href="{{post.youtube}}"><i class="fab fa-youtube"></i>&nbsp;YouTube</a>
+                {% assign sep = " / " %}
               {% endif %}
               <p></p>
               {{ post.excerpt }}

@@ -132,7 +132,7 @@ title: Reading Log
               <div class="book-info">
                 <strong>{{ book.title }}</strong>
                 <em>by {{ book.author }}</em>
-                {% if book.rating %}<br>⭐ {{ book.rating }}/5{% endif %}
+                {% if book.rating %}<br>⭐ {{ book.rating }}/5{% else %}<br>Reading{% endif %}
               </div>
             </a>
           {% endfor %}

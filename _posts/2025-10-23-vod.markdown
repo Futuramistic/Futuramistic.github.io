@@ -6,6 +6,6 @@ image: /images/VoD_2.png
 categories: research
 authors: "<strong>Mateusz Nowak</strong>, Xavier Cadet, Peter Chin"
 venue: "arxiv"
-arxiv: https://arxiv.org/abs/2501.17978
+arxivold: https://arxiv.org/abs/2501.17978
 ---
 As standard 3D Gaussian Splatting (3DGS) struggles to separate objects from view-dependent lighting effects like reflections and specular highlights, we propose a data-driven enhancement that uses an additional symmetric matrix to make each Gaussian's opacity view-dependent. By suppressing specific Gaussians based on the viewing angle, our approach accurately renders complex lighting and achieves improved performance across multiple benchmark datasets while maintaining rendering speeds of approximately 100 FPS.

@@ -6,6 +6,7 @@ image: /images/ExpRL.jpg
 categories: research
 authors: "<strong>Mateusz Nowak*</strong>, Qintong Xie*, Emma Graham, Ryan Yu, Michelle Yilin Feng, Roy Leibovitz, Xavier Cadet, Peter Chin"
 venue: "GameSec"
+arxivold: https://arxiv.org/abs/2412.02016
 paper: https://dl.acm.org/doi/10.1007/978-3-032-08064-6_3
 ---
 To bridge the gap between the theoretical guarantees of game-theoretic methods and the practical scalability of reinforcement learning (RL) in large stochastic environments, we introduce Exp3-IXRL, an equilibrium approximator that uses RL to update approximations while preserving the integrity of both processes. By extending Exp3 algorithms beyond stateless settings, our method empirically demonstrates strong performance across standard and stochastic multi-armed bandits, as well as in complex adversarial cybersecurity networks.

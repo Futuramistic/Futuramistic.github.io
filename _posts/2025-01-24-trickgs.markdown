@@ -6,6 +6,7 @@ image: /images/Trick.png
 categories: research
 authors: "Anil Armagan, Albert Saà-Garriga, Bruno Manganelli, <strong>Mateusz Nowak</strong>, Mehmet Kerim Yucel"
 venue: "ICASSP"
+arxiv: https://arxiv.org/abs/2501.14534
 paper: https://ieeexplore-custom.ieee.org/document/10889395
 ---
 To make high-quality 3D Gaussian Splatting (GS) viable for computationally constrained devices, we introduce <strong>Trick-GS</strong>, which integrates progressive training, significance-based pruning, and an accelerated training framework. This approach achieves comparable accuracy to vanilla GS while delivering up to 2x faster training and rendering speeds, alongside a 40x reduction in model size.
