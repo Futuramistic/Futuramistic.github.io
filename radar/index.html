@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="RADAR: Relative Angular Divergence Across Representations. A geometrically grounded metric for estimating cross-domain transferability in foundation models.">
+  <meta name="keywords" content="transferability, transfer learning, foundation models, geometric metric, domain adaptation, RADAR">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RADAR: Relative Angular Divergence Across Representations</title>
+
+  <!-- TODO: add your own Google Analytics tag here if desired. -->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+       data-target="navbarMain">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu" id="navbarMain">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://futuramistic.github.io/">
+        <span class="icon"><i class="fas fa-home"></i></span>
+        <span>&nbsp;Home</span>
+      </a>
+      <a class="navbar-item" href="https://arxiv.org/abs/2605.23028">
+        <span class="icon"><i class="ai ai-arxiv"></i></span>
+        <span>&nbsp;arXiv</span>
+      </a>
+      <a class="navbar-item" href="#method">
+        <span class="icon"><i class="fas fa-project-diagram"></i></span>
+        <span>&nbsp;Method</span>
+      </a>
+      <a class="navbar-item" href="#results">
+        <span class="icon"><i class="fas fa-chart-line"></i></span>
+        <span>&nbsp;Results</span>
+      </a>
+      <a class="navbar-item" href="#">
+        <span class="icon"><i class="fab fa-github"></i></span>
+        <span>&nbsp;Code (TODO)</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.navbar-burger').forEach(burger => {
+      burger.addEventListener('click', () => {
+        const target = document.getElementById(burger.dataset.target);
+        burger.classList.toggle('is-active');
+        if (target) target.classList.toggle('is-active');
+      });
+    });
+  });
+</script>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">RADAR: Relative Angular Divergence Across Representations</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://sites.dartmouth.edu/lisplab/xavier-cadet/">Xavier Cadet</a><sup>*1</sup>,</span>
+            <span class="author-block">
+              <a href="https://futuramistic.github.io/">Mateusz Nowak</a><sup>*1</sup>,</span>
+            <span class="author-block">
+              <a href="https://sites.dartmouth.edu/lisplab/sang-peter-chin/">Peter Chin</a><sup>1</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Dartmouth College</span>
+          </div>
+
+          <div class="is-size-6 publication-authors" style="margin-top: 0.5em;">
+            <span class="author-block"><sup>*</sup>Equal contribution</span>
+          </div>
+
+          <div class="is-size-5 publication-authors" style="margin-top: 0.75em;">
+            <span class="author-block">Preprint, May 2026</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- arXiv Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2605.23028"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (TODO)</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/RADAR_white.png"
+           alt="RADAR framework overview: a pre-trained model embeds target and source domains; RADAR compares within- and cross-domain angle and distance densities across layers to flag Good, Mixed, and Bad source candidates."
+           style="width: 100%; height: auto; display: block;">
+      <h2 class="subtitle has-text-centered" style="margin-top: 1.5rem;">
+        Picking which source data to blend in is a guessing game &mdash;
+        and a wrong guess can <em>hurt</em> the target task.
+        <strong>RADAR</strong> reads the layer-wise geometry of frozen
+        foundation models &mdash; angles &theta; and relative distances
+        <em>d</em> between sample trajectories &mdash; to rank candidate
+        sources <strong>without any fine-tuning</strong>.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3" id="abstract">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Machine learning methods rely on data. However, gathering
+            suitable data can be challenging due to availability constraints,
+            cost, or the need for domain expertise. Expanding datasets with
+            additional sources is a common response to limited data, yet this
+            practice does not always improve downstream performance and can
+            sometimes lead to a loss of performance, known as
+            <em>negative transfer</em>.
+          </p>
+          <p>
+            We propose <strong>RADAR</strong>, a simple, geometrically
+            grounded metric for estimating cross-domain transferability in
+            foundation models. RADAR analyzes the layer-wise evolution of
+            representations by measuring angular alignments and relative
+            changes in distance along layer-to-layer displacement
+            trajectories, and by comparing empirical distributions of
+            within-domain and cross-domain dynamics. We hypothesize that
+            domain transferability is related to the divergence between
+            these trajectory distributions.
+          </p>
+          <p>
+            We evaluate the metric across multiple modalities, including
+            cross-lingual sentiment classification with text embedding models
+            and cross-domain image classification with foundation vision
+            models. Across several settings, RADAR provides competitive
+            predictive performance relative to existing transferability
+            metrics on several vision and text benchmarks, with
+            <strong>particularly strong results when domain transitions are
+            smooth or cleanly separated</strong>. Our ablations further
+            suggest that the effectiveness of transferability estimation
+            depends on the geometry of the model's internal representation
+            space, with different modalities favoring different topological
+            formulations.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <!-- Problem. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="problem">The Source Selection Problem</h2>
+        <div class="content has-text-justified">
+          <p>
+            Suppose you have a target domain &mdash; say, <em>real</em>
+            photographs &mdash; and a pool of candidate source domains
+            (paintings, sketches, clipart, &hellip;). Which blend
+            should you train on?
+          </p>
+          <p>
+            With <em>K</em> candidates, there are <strong>2<sup>K-1</sup></strong>
+            possible blends. Evaluating each empirically requires a
+            full retraining run, which is infeasible at any reasonable
+            scale. We need a metric that <strong>predicts</strong> the
+            transfer gain &Delta;(<em>S</em>) &mdash; ideally from frozen
+            features alone, with no retraining at all &mdash; and whose
+            ranking is consistent with the ranking induced by true
+            downstream accuracy.
+          </p>
+          <p>
+            We evaluate any candidate metric by its <strong>Spearman rank
+            correlation &rho;</strong> with ground-truth transfer gains
+            across all blend configurations.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Problem. -->
+
+
+    <div class="columns is-centered">
+
+      <!-- Geometry. -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-3" id="method">Layer-wise Geometric Trajectories</h2>
+          <p>
+            For an anchor sample <em>x</em> in domain <em>D<sub>A</sub></em>,
+            we draw an intra-domain partner <em>x'</em> and a cross-domain
+            partner <em>x''</em> from <em>D<sub>B</sub></em>. At every layer
+            transition <em>l</em> &rarr; <em>l+1</em>, we form a triangle
+            of displacement vectors:
+          </p>
+          <ul>
+            <li><strong>v<sub>sep</sub></strong> &mdash; the spatial
+              separation between the two samples at layer <em>l</em>.</li>
+            <li><strong>v<sub>detour</sub></strong> &mdash; the path from
+              the partner at <em>l</em> to the anchor at <em>l+1</em>.</li>
+            <li><strong>v<sub>traj</sub></strong> &mdash; the anchor's
+              direct trajectory from <em>l</em> to <em>l+1</em>.</li>
+          </ul>
+          <div class="columns is-mobile is-vcentered" style="margin-top: 0.5rem;">
+            <div class="column has-text-centered">
+              <img src="./static/images/angles_within.png" alt="..." style="width: 100%; height: auto; border-radius: 8px;">
+              <p class="is-size-7" style="margin-top: 0.25rem;"><strong>(a) Within-domain dynamic.</strong></p>
+            </div>
+            <div class="column has-text-centered">
+              <img src="./static/images/angles_cross.png" alt="..." style="width: 100%; height: auto; border-radius: 8px;">
+              <p class="is-size-7" style="margin-top: 0.25rem;"><strong>(b) Across-domain dynamic.</strong></p>
+            </div>
+          </div>
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>Within-domain (left) vs. across-domain (right) dynamics.</strong>
+            Per the triangle closure identity (proved in the appendix),
+            <strong>v<sub>sep</sub> + v<sub>detour</sub> = v<sub>traj</sub></strong>,
+            so the relative distance <em>d</em> measures the normalized
+            <em>excess path length</em> of the detour, and the angle
+            &theta; quantifies the misalignment between separation and
+            trajectory.
+          </p>
+        </div>
+      </div>
+      <!--/ Geometry. -->
+
+      <!-- Algorithm. -->
+      <div class="column">
+        <h2 class="title is-3" id="algorithm">From Trajectories to Divergence</h2>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              Four lightweight steps, no retraining, no labels needed
+              beyond stratification:
+            </p>
+            <ul>
+              <li><strong>Trace</strong> &mdash; for each pair, collect
+                (&theta;, <em>d</em>) at every layer transition across a
+                window of radius <em>&ell;</em> = 6 (a 24-D feature
+                vector per pair).</li>
+              <li><strong>Sample</strong> &mdash; mix
+                <em>inlier-inlier</em> and <em>inlier-outlier</em> pairs
+                via distance-weighted stratified sampling to cover both
+                cluster cores and class boundaries.</li>
+              <li><strong>Fit</strong> &mdash; learn a Gaussian Mixture
+                Model on the within-domain trajectories and a second on
+                the cross-domain trajectories.</li>
+              <li><strong>Diverge</strong> &mdash; rank candidate sources
+                by the weighted symmetric KL divergence between the two
+                GMMs.</li>
+            </ul>
+            <img src="./static/images/RADAR_pipeline.png"
+                 alt="Pipeline figure showing the RADAR steps: extract layer-wise representations, sample inlier and boundary pairs, compute angles and distances over a 13-layer window, fit GMMs, and compute symmetric KL divergence."
+                 style="width: 100%; height: auto; border-radius: 8px;">
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>The RADAR pipeline.</strong>
+              GMM&nbsp;+&nbsp;KL is the only divergence we tested that is
+              universally robust across vision and text; Sinkhorn divergence
+              is highly competitive on text alone.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ Algorithm. -->
+
+
+    <!-- Results. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="results">Results</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            We evaluate RADAR against seven established transferability
+            metrics &mdash; LEEP, H-Score, Reg. H-Score, LogME, NCE,
+            TransRate, and S-OTDD &mdash; across two vision backbones
+            (CLIP, DINOv3) and two text-embedding backbones
+            (Qwen3-Embedding, EmbeddingGemma), spanning five benchmarks.
+            We report <strong>Mean Correlation Improvement (MCI)</strong>
+            over a centroid-distance baseline: lower is better.
+          </p>
+          <p>
+            <strong>RADAR achieves top-three performance in 7 of 10
+            configurations and the absolute best in 6 of them.</strong>
+          </p>
+        </div>
+
+        <div class="content has-text-centered" style="margin-top: -0.5rem;">
+          <p class="is-size-7" style="color: #777; font-style: italic;">
+            <i class="fas fa-info-circle"></i><strong>How to read the tables below.</strong>
+            MCI is the difference in Spearman rank correlation between the
+            evaluated metric and the centroid-distance baseline. Negative
+            (lower) is better. <strong>Bold</strong> = best,
+            <u>underline</u> = second-best.
+          </p>
+        </div>
+
+        <!-- Vision results table -->
+        <div class="content has-text-centered">
+          <h3 class="title is-5">Vision benchmarks</h3>
+          <div style="overflow-x: auto;">
+          <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" style="font-size: 0.9rem;">
+            <thead>
+              <tr>
+                <th rowspan="2" style="vertical-align: middle;">Method</th>
+                <th colspan="2" style="text-align:center;">DomainNet</th>
+                <th colspan="2" style="text-align:center;">OfficeHome</th>
+                <th colspan="2" style="text-align:center;">PACS</th>
+              </tr>
+              <tr>
+                <th>CLIP</th><th>DINOv3</th>
+                <th>CLIP</th><th>DINOv3</th>
+                <th>CLIP</th><th>DINOv3</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>LEEP</td>           <td><u>&minus;8.63</u></td>
+                                          <td><u>3.44</u></td>   
+                                          <td>&minus;4.52</td> 
+                                          <td>3.92</td>          
+                                          <td>&minus;14.64</td>
+                                          <td>&minus;33.67</td></tr>
+              <tr><td>H-Score</td>        <td>0.92</td>       
+                                          <td>19.13</td>  
+                                          <td>8.77</td>        
+                                          <td>21.98</td>         
+                                          <td>&minus;10.28</td>
+                                          <td><u>&minus;50.29</u></td></tr>
+              <tr><td>Reg. H-Score</td>   <td>6.03</td>       
+                                          <td>17.11</td>  
+                                          <td>8.13</td>        
+                                          <td>26.95</td>         
+                                          <td>&minus;12.11</td>
+                                          <td>&minus;48.89</td></tr>
+              <tr><td>LogME</td>          <td>12.17</td>      
+                                          <td>19.90</td>  
+                                          <td>&minus;4.41</td> 
+                                          <td>18.67</td>         
+                                          <td>&minus;9.96</td> 
+                                          <td><strong>&minus;72.08</strong></td></tr>
+              <tr><td>NCE</td>            <td>&minus;4.88</td>
+                                          <td>4.15</td>   
+                                          <td>&minus;7.20</td> 
+                                          <td>3.93</td>          
+                                          <td>&minus;13.61</td>
+                                          <td>&minus;33.89</td></tr>
+              <tr><td>TransRate</td>      <td>2.29</td>       
+                                          <td>12.71</td>  
+                                          <td><u>&minus;11.78</uu></td>
+                                          <td><u>&minus;3.12</u></td>   
+                                          <td><strong>&minus;25.45</strong></td>
+                                          <td>&minus;27.38</td></tr>
+              <tr><td>S-OTDD</td>         <td>27.01</td>
+                                          <td>21.31</td> 
+                                          <td>10.88</td>       
+                                          <td><strong>&minus;24.69</strong></td>  
+                                          <td><u>&minus;23.92</u></td>
+                                          <td>&minus;37.50</td></tr>
+              <tr style="background-color: #fff7e6;">
+                <td><strong>RADAR (Ours)</strong></td>  <td><strong>&minus;9.71</strong></td>
+                                                        <td><strong>&minus;9.87</strong></td>
+                                                        <td><strong>&minus;16.62</strong></td>
+                                                        <td>3.55</td>
+                                                        <td>&minus;0.27*</td>
+                                                        <td>&minus;30.23*</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>Vision results.</strong>
+            RADAR is the only metric to achieve negative MCI on DomainNet
+            for DINOv3, and tops the OfficeHome&ndash;CLIP setting.
+            *On PACS, results are mixed &mdash; the dataset sits in an
+            intermediate domain-separation regime where trajectory
+            descriptors are less informative (see the geometry discussion
+            below).
+          </p>
+        </div>
+
+        <!-- Text results table -->
+        <div class="content has-text-centered" style="margin-top: 2rem;">
+          <h3 class="title is-5">Text benchmarks</h3>
+          <div style="overflow-x: auto;">
+          <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" style="font-size: 0.9rem;">
+            <thead>
+              <tr>
+                <th rowspan="2" style="vertical-align: middle;">Method</th>
+                <th colspan="2" style="text-align:center;">EuroEval</th>
+                <th colspan="2" style="text-align:center;">Amazon Reviews</th>
+              </tr>
+              <tr>
+                <th>Qwen3-Emb.</th><th>EmbeddingGemma</th>
+                <th>Qwen3-Emb.</th><th>EmbeddingGemma</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>LEEP</td>          <td><u>&minus;3.58</u></td>
+                                         <td>3.94</td>   
+                                         <td>1.76</td>       
+                                         <td><u>1.91</u></td></tr>
+              <tr><td>H-Score</td>       <td>9.27</td>      
+                                         <td>11.75</td>  
+                                         <td>&minus;6.84</td>  
+                                         <td>3.35</td></tr>
+              <tr><td>Reg. H-Score</td>  <td>6.13</td>      
+                                         <td>10.45</td>  
+                                         <td><u>&minus;6.91</u></td>  
+                                         <td>3.35</td></tr>
+              <tr><td>LogME</td>         <td>22.93</td>     
+                                         <td>20.82</td>  
+                                         <td>22.57</td>       
+                                         <td>20.91</td></tr>
+              <tr><td>NCE</td>           <td>&minus;0.02</td>
+                                         <td><u>1.88</u></td>  
+                                         <td><strong>&minus;7.60</strong></td>
+                                         <td>5.71</td></tr>
+              <tr><td>TransRate</td>     <td>3.12</td>      
+                                         <td>4.10</td>   
+                                         <td>12.47</td>       
+                                         <td>19.48</td></tr>
+              <tr><td>S-OTDD</td>        <td>6.19</td>      
+                                         <td>18.71</td>  
+                                         <td>15.63</td>       
+                                         <td>19.69</td></tr>
+              <tr style="background-color: #fff7e6;">
+                <td><strong>RADAR (Ours)</strong></td>
+                <td><strong>&minus;7.13</strong></td>
+                <td><strong>&minus;30.58</strong></td>
+                <td>3.21</td>
+                <td><strong>1.23</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>Text results.</strong>
+            On EuroEval / EmbeddingGemma, RADAR beats the next-best
+            baseline by <strong>over 30 percentage points</strong>.
+            Metrics that did well on vision &mdash; LogME, TransRate,
+            S-OTDD &mdash; collapse on text; RADAR is the only metric that
+            transfers cleanly across modalities.
+          </p>
+        </div>
+
+        <details style="margin-top: 1.5rem;">
+          <summary>Click for the ImageNet-C robustness story.</summary>
+          <div class="content has-text-justified" style="margin-top: 1rem;">
+            <p>
+              On ImageNet-C, RADAR's behavior follows a structural pattern.
+              Under <strong>low corruption</strong> (Severity 1) it is
+              competitive with the strongest statistical baselines; under
+              <strong>extreme corruption</strong> (Severity 5) it
+              dominates &mdash; achieving an MCI of <strong>&minus;30.16
+              on DINOv3</strong> while metrics like LEEP and NCE blow past
+              35.0. Under <strong>moderate</strong> corruption (Severity
+              3), trajectory alignments are perturbed without being
+              uniformly distorted, and the metric degrades.
+            </p>
+            <p>
+              This is also exactly why PACS is hard for RADAR: its
+              Layer&nbsp;0 inter-domain distances mirror ImageNet-C
+              Severity 3 &mdash; an intermediate regime that is neither
+              smooth enough for trajectory alignment nor distinct enough
+              for clean separation. The diagnostic is available
+              <em>in advance</em> from input-layer centroid distances
+              alone, which makes RADAR's scope checkable before you
+              commit to the metric.
+            </p>
+          </div>
+
+          <div class="content has-text-centered">
+            <img src="./static/images/img_vis.png"
+                 alt="Visualization of ImageNet-C synthetic corruptions across severities 0, 1, 3, and 5, illustrating progressive structural degradation."
+                 style="width: 90%; height: auto;">
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>ImageNet-C corruptions.</strong>
+              Progressive structural degradation across severities. RADAR
+              tracks the chaotic geometric trajectories at Severity 5
+              where most static metrics collapse.
+            </p>
+          </div>
+        </details>
+
+        <br>
+        <div class="content has-text-justified">
+          <p>
+            Crucially, RADAR is also <strong>efficient</strong>. On CPU
+            alone it is the fastest of all evaluated metrics (645s vs.
+            LEEP's 895s and LogME's 2804s on DomainNet); a Sinkhorn-based
+            variant brings GPU runtimes in line with the fastest
+            baselines while preserving most of the predictive power.
+          </p>
+        </div>
+
+      </div>
+    </div>
+    <!--/ Results. -->
+
+
+    <!-- Findings. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="findings">Three Findings from the Ablations</h2>
+        <div class="content has-text-justified">
+          <p>
+            We ran the metric through extensive ablations &mdash; on
+            feature choice, sampling strategy, topological space, GMM
+            covariance, divergence algorithm, and three hyperparameters.
+            Three results stand out:
+          </p>
+          <ul>
+            <li>
+              <strong>Angles and distances are complementary.</strong>
+              Removing either one degrades performance for both
+              modalities; text in particular relies heavily on angular
+              alignment &mdash; consistent with the cosine-based
+              contrastive objectives used to train modern text encoders.
+            </li>
+            <li>
+              <strong>Modalities prefer different geometries.</strong>
+              Text representations live on a Euclidean manifold for the
+              purposes of this metric &mdash; projecting them into a
+              geodesic or pseudo-Cartesian space severely degrades the
+              correlation. Vision models are more flexible: DINOv3
+              actually benefits from a pseudo-Cartesian projection, while
+              CLIP, like the text models, prefers Euclidean. We adopt
+              Euclidean as the unified default.
+            </li>
+            <li>
+              <strong>The data-processing inequality justifies looking
+              past the final layer.</strong> We prove (Appendix J) that
+              the total-variation divergence between domains is
+              <em>monotonically non-increasing</em> across deterministic
+              layer maps &mdash; so single-layer, final-output metrics
+              systematically underestimate domain divergence. RADAR
+              spans a window of 13 layers around the chosen depth to
+              recover that signal.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!--/ Findings. -->
+
+
+    <!-- Related Work. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="related">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Several lines of work informed RADAR. We invite you to read
+            them too.
+          </p>
+          <ul>
+            <li>
+              <a href="https://proceedings.mlr.press/v119/nguyen20b.html">Nguyen et&nbsp;al. (ICML&nbsp;2020)</a>,
+              <a href="https://openaccess.thecvf.com/content_ICCV_2019/papers/Tran_Transferability_and_Hardness_of_Supervised_Classification_Tasks_ICCV_2019_paper.pdf">Tran et&nbsp;al. (ICCV&nbsp;2019)</a>,
+              and <a href="http://proceedings.mlr.press/v139/you21b.html">You et&nbsp;al. (ICML&nbsp;2021)</a>
+              introduce label-conditional and Bayesian transferability
+              metrics (LEEP, NCE, LogME) on which we build the empirical
+              comparison.
+            </li>
+            <li>
+              <a href="https://arxiv.org/abs/2501.18901">Nguyen et&nbsp;al. (2025, S-OTDD)</a>
+              and <a href="https://papers.nips.cc/paper/2020/hash/f52a7b2610fb4d3f74b4106fb80b233d-Abstract.html">Alvarez-Melis &amp; Fusi (NeurIPS&nbsp;2020, OTDD)</a>
+              cast dataset distance as an optimal-transport problem; we
+              compare directly against the sliced variant.
+            </li>
+            <li>
+              <a href="https://www.nature.com/articles/s41593-019-0377-4">H&eacute;naff et&nbsp;al. (Nature Neuroscience&nbsp;2019)</a>
+              and <a href="https://openreview.net/forum?id=LsmUgStXby">Intern&ograve; et&nbsp;al. (NeurIPS&nbsp;2025)</a>
+              develop the perceptual-straightening framework that
+              inspired our use of trajectory angles in deep networks.
+            </li>
+            <li>
+              <a href="https://arxiv.org/abs/2504.13181">Bolya et&nbsp;al. (2025, Perception Encoder)</a>
+              shows that the most informative features are often
+              <em>not</em> at the final layer &mdash; the empirical
+              motivation for our multi-layer trajectory window.
+            </li>
+            <li>
+              <a href="https://openreview.net/forum?id=BH8TYy0r6u">Huh et&nbsp;al. (ICML&nbsp;2024, Platonic Representation Hypothesis)</a>
+              argues that foundation models converge toward a shared
+              statistical geometry &mdash; consistent with our
+              cross-modal evaluation.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!--/ Related Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title" id="bibtex">BibTeX</h2>
+    <pre style="white-space: pre-wrap; word-break: break-word;"><code>@article{cadet2026radar,
+  author    = {Cadet, Xavier and Nowak, Mateusz and Chin, Peter},
+  title     = {{RADAR}: Relative Angular Divergence Across Representations},
+  journal   = {arXiv preprint arXiv:2605.23028},
+  year      = {2026},
+}</code></pre>
+  </div>
+</section>
+
+
+<section class="section" id="acknowledgments">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-5">Acknowledgments</h2>
+    <p class="is-size-6">
+      This research was funded by the Defense Advanced Research Projects
+      Agency (DARPA), under contract W912CG23C0031.
+    </p>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="#">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="#" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This page borrows the
+            <a href="https://github.com/nerfies/nerfies.github.io">Nerfies project page template</a>;
+            credit to the original authors.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
