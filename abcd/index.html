@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="ABCD: All Biases Come Disguised. A bias-reduced evaluation protocol for multiple-choice question answering in LLMs.">
+  <meta name="keywords" content="MCQ, LLM, evaluation, bias, NonsenseQA, ABCD">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ABCD: All Biases Come Disguised</title>
+
+  <!-- TODO: add your own Google Analytics tag here if desired. The Nerfies
+       template's tracking ID has been removed so the page does not send
+       traffic to the template authors. -->
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+       data-target="navbarMain">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu" id="navbarMain">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://futuramistic.github.io/">
+        <span class="icon"><i class="fas fa-home"></i></span>
+        <span>&nbsp;Home</span>
+      </a>
+      <a class="navbar-item" href="https://icml.cc/virtual/2026/poster/65588">
+        <span class="icon"><i class="fa fa-file-pdf"></i></span>
+        <span>&nbsp;Paper</span>
+      </a>
+      <a class="navbar-item" href="https://arxiv.org/abs/2602.17445">
+        <span class="icon"><i class="ai ai-arxiv"></i></span>
+        <span>&nbsp;arXiv</span>
+      </a>
+      <a class="navbar-item" href="#results">
+        <span class="icon"><i class="fas fa-chart-line"></i></span>
+        <span>&nbsp;Results</span>
+      </a>
+      <a class="navbar-item" href="#">
+        <span class="icon"><i class="fab fa-github"></i></span>
+        <span>&nbsp;Code (TODO)</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.navbar-burger').forEach(burger => {
+      burger.addEventListener('click', () => {
+        const target = document.getElementById(burger.dataset.target);
+        burger.classList.toggle('is-active');
+        if (target) target.classList.toggle('is-active');
+      });
+    });
+  });
+</script>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">ABCD: All Biases Come Disguised</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://futuramistic.github.io/">Mateusz Nowak</a><sup>*1</sup>,</span>
+            <span class="author-block">
+              <a href="https://sites.dartmouth.edu/lisplab/xavier-cadet/">Xavier Cadet</a><sup>*1</sup>,</span>
+            <span class="author-block">
+              <a href="https://sites.dartmouth.edu/lisplab/sang-peter-chin/">Peter Chin</a><sup>1</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Dartmouth College</span>
+          </div>
+
+          <div class="is-size-6 publication-authors" style="margin-top: 0.5em;">
+            <span class="author-block"><sup>*</sup>Equal contribution</span>
+          </div>
+
+          <div class="is-size-5 publication-authors" style="margin-top: 0.75em;">
+            <span class="author-block">ICML 2026</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://icml.cc/virtual/2026/poster/65588"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- arXiv Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2602.17445"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (TODO)</span>
+                  </a>
+              </span>
+              <!-- OpenReview Link. -->
+              <span class="link-block">
+                <a href="https://openreview.net/forum?id=C7reVNwYsF"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-comments"></i>
+                  </span>
+                  <span>OpenReview</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/abcd_hero_2.png"
+           alt="ABCD: All Biases Come Disguised — four MCQ option cards labeled A, B, C, D wearing masks."
+           style="width: 100%; height: auto; display: block;">
+      <h2 class="subtitle has-text-centered" style="margin-top: 1.5rem;">
+        Standard MCQ evaluation lets LLMs cheat through label, position, and
+        few-shot prompt artifacts.
+        <strong>ABCD</strong> swaps distinct labels for uniform dashes and
+        matches generated answers by semantic similarity &mdash;
+        cutting accuracy variance <strong>3&times;</strong> with a single-pass,
+        logit-free protocol.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3" id="abstract">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Multiple-choice question (MCQ) benchmarks have been a standard
+            evaluation practice for measuring LLMs' ability to reason and
+            answer knowledge-based questions. Through a synthetic
+            <strong>NonsenseQA</strong> benchmark, we observe that different
+            LLMs exhibit varying degrees of label-position-few-shot-prompt
+            bias, where the model either uses the answer position, the label
+            in front of the answer, the distribution of correct answers
+            present in the few-shot prompt, or a combination of all to answer
+            each MCQ question.
+          </p>
+          <p>
+            We propose a simple bias-reduced evaluation protocol that
+            replaces the labels of each question with uniform, unordered
+            labels and prompts the LLM to use the whole answer presented.
+            With a simple sentence similarity model, we demonstrate improved
+            robustness and lower standard deviation between different
+            permutations of answers with a minimal drop in performance,
+            exposing the LLM's capabilities under reduced evaluation
+            artifacts &mdash; without any help from the prompt examples or
+            the option labels.
+          </p>
+          <p>
+            Across multiple benchmarks and models, this protocol substantially
+            improves the robustness to answer permutations, reducing mean
+            accuracy variance <strong>3&times;</strong> with only a minimal
+            decrease in mean model performance. Through ablation studies on
+            various embedding models and similarity functions, we show that
+            the method is more robust than the standard ones.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <div class="columns is-centered">
+
+      <!-- NonsenseQA. -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-3" id="nonsense">NonsenseQA</h2>
+          <p>
+            A diagnostic dataset of 1,000 questions built from random words
+            with randomly assigned "correct" answers. Each answer is placed
+            uniformly across the four positions, so no label, position, or
+            distributional bias is built into the data &mdash; accuracy
+            should sit at the <strong>25% chance level</strong>.
+          </p>
+          <img src="./static/images/nonsenseqa_example.png"
+               alt="A NonsenseQA example question composed of random words with four random-word options."
+               style="width: 100%; height: auto; border-radius: 8px;">
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>A NonsenseQA example.</strong>
+            An example question from NonsenseQA with random answers and 
+            a golden answer chosen at random as "D. Arms". 
+            Models should score at chance (25%); under standard MCQ 
+            evaluation, many score above 90%.
+          </p>
+        </div>
+      </div>
+      <!--/ NonsenseQA. -->
+
+      <!-- Matched-and-Dashed. -->
+      <div class="column">
+        <h2 class="title is-3" id="m_and_d">Matched-and-Dashed (M&amp;D)</h2>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              Our proposed evaluation protocol. Three lightweight changes,
+              one forward pass, no fine-tuning, no logits required:
+            </p>
+            <ul>
+              <li><strong>Uniform labels</strong> &mdash; replace
+                <code>A&nbsp;/&nbsp;B&nbsp;/&nbsp;C&nbsp;/&nbsp;D</code> with <br>
+                <code>-&nbsp;/&nbsp;-&nbsp;/&nbsp;-&nbsp;/&nbsp;-</code> to
+                neutralize label bias.
+              </li>
+              <li><strong>Full-text generation</strong> &mdash; the model
+                writes the answer it chooses, not a letter.</li>
+              <li><strong>Semantic matching</strong> &mdash; map the
+                generation to the closest candidate option via cosine
+                similarity over sentence embeddings.</li>
+            </ul>
+            <img src="./static/images/main_figure.png"
+                 alt="Pipeline figure showing the M&D protocol: LLM generates a full-text answer, a regex filter extracts the final sentence, and a sentence similarity model maps it to the most likely option."
+                 style="width: 100%; height: auto; border-radius: 8px;">
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>The M&amp;D pipeline.</strong>
+              The LLM generates a full-text answer; a small regex extracts
+              the final sentence; a sentence embedding model maps it to the
+              closest candidate option by cosine similarity.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ Matched-and-Dashed. -->
+
+    <!-- Results. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="results">Results</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Under standard letter-based MCQ evaluation, several LLMs score
+            <strong>over 95%</strong> &mdash; not by reasoning, but by
+            exploiting the few-shot answer distribution, label, and position
+            cues. NonsenseQA exposes three behavioral categories: explicit
+            bias models, implicit bias models, and models that cannot
+            reliably leverage the bias.
+          </p>
+        </div>
+
+        <div class="content has-text-centered" style="margin-top: -0.5rem;">
+          <p class="is-size-7" style="color: #777; font-style: italic;">
+            <i class="fas fa-info-circle"></i><strong>How to read these plots.</strong>
+            Throughout this section, boxes show median &plusmn; standard deviation
+            across answer-moving attack permutations; whiskers show min/max; dots
+            are the original permutation; stars are the
+            <a href="https://aclanthology.org/2025.naacl-industry.39">SCORE</a>
+            robustness metric.
+          </p>
+        </div>
+
+        <!-- NonsenseQA box plot — the headline result. -->
+        <div class="content has-text-centered">
+          <img src="./static/images/prompt_robustness_accuracy_Nonsense_comp.png"
+               alt="Box plots comparing M&D (yellow) and S&L (pink) across 13 models on NonsenseQA. S&L medians stretch from 40% to 95% on semantically meaningless inputs; M&D medians collapse toward the 25% chance line."
+               style="width: 90%; height: auto;">
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>NonsenseQA.</strong>
+            Under standard S&amp;L (pink), several LLMs score &gt;95% on
+            questions made of random words. M&amp;D (yellow) collapses the
+            same models toward the 25% chance line &mdash; revealing that the
+            high S&amp;L scores were never reasoning, only bias exploitation.
+          </p>
+        </div>
+
+        <div class="content has-text-justified">
+          <p>
+            Across 13 open-source LLMs (DeepSeek-R1, Qwen3, Llama-3.1,
+            Gemma-3, Ministral-3, Nemotron, Phi-4, GPT-OSS) and five
+            benchmarks (CommonsenseQA, ARC, GPQA, MMLU-Pro, INCLUDE), M&amp;D
+            cuts mean accuracy variance under answer-moving attacks by a
+            <strong>3&times; geometric mean</strong> with only minimal
+            performance loss.
+          </p>
+        </div>
+
+        <div class="content has-text-centered">
+          <img src="./static/images/prompt_robustness_accuracy_GPQA.png"
+               alt="Box plots comparing M&D (purple) and S&L (orange) across 13 models on GPQA, showing reduced variance and tighter spreads under the proposed protocol."
+               style="width: 90%; height: auto;">
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>GPQA.</strong>
+            M&amp;D reduces accuracy variance in <strong>9 of 13 models</strong>
+            on graduate-level
+            <a href="https://arxiv.org/abs/2311.12022">GPQA</a> questions,
+            and shrinks the gap between original and attack-averaged accuracy
+            in 8 of 13.
+          </p>
+        </div>
+
+        <div class="content has-text-centered">
+          <img src="./static/images/prompt_robustness_accuracy_MMLU-Pro-2.png"
+               alt="Box plots comparing M&D (purple) and S&L (orange) across 13 models on MMLU-Pro, showing reduced variance and tighter spreads under the proposed protocol."
+               style="width: 90%; height: auto;">
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>MMLU-Pro.</strong>
+            M&amp;D (purple) reduces variance for 7 of 13 models, but
+            original-permutation accuracy remains well above the attack
+            median across both protocols. Our appendix attributes
+            this to MMLU-Pro's 10-option structure and perplexity-based
+            evidence of possible training-data contamination on the original ordering.
+          </p>
+        </div>
+
+        <details>
+          <summary>Click here to see the results on CommonsenseQA, INCLUDE, and ARC.</summary>
+          <div class="content has-text-centered">
+            <img src="./static/images/prompt_robustness_accuracy_CommonsenseQA.png"
+                alt="Box plots comparing M&D (purple) and S&L (orange) across 13 models on CommonsenseQA, showing reduced variance and tighter spreads under the proposed protocol."
+                style="width: 90%; height: auto;">
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>CommonsenseQA.</strong>
+              M&amp;D (purple) collapses the spread that S&amp;L (orange) leaves
+              wide open.
+            </p>
+          </div>
+
+          <div class="content has-text-centered">
+            <img src="./static/images/prompt_robustness_accuracy_INCLUDE.png"
+                alt="Box plots comparing M&D (purple) and S&L (orange) across 13 models on INCLUDE, showing reduced variance and tighter spreads under the proposed protocol."
+                style="width: 90%; height: auto;">
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>INCLUDE.</strong>
+              M&amp;D (purple) collapses the spread that S&amp;L (orange) leaves
+              wide open.
+            </p>
+          </div>
+
+          <div class="content has-text-centered">
+            <img src="./static/images/prompt_robustness_accuracy_ARC.png"
+                alt="Box plots comparing M&D (purple) and S&L (orange) across 13 models on ARC, showing reduced variance and tighter spreads under the proposed protocol."
+                style="width: 90%; height: auto;">
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>ARC.</strong>
+              M&amp;D (purple) collapses the spread that S&amp;L (orange) leaves
+              wide open.
+            </p>
+          </div>
+        </details>
+        <br>
+        <div class="content has-text-justified">
+          <p>
+            Cross-benchmark rank agreement improves for
+            reasoning-heavy pairs (GPQA &harr; ARC, GPQA &harr; CSQA) and
+            decreases for English &harr; multilingual pairs &mdash;
+            differences previously masked by shared evaluation artifacts.
+          </p>
+        </div>
+
+        <div class="content has-text-centered">
+          <img src="./static/images/kendalltau.png"
+               alt="Kendall tau cross-benchmark rank-agreement difference τM &D − τS&L. A positive value indicates a higher M&D cross-benchmark rank agreement, while a negative-higher S&L rank agreement."
+               style="width: 90%; height: auto;">
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>Cross-benchmark rank agreement.</strong>
+            Kendall tau difference &tau;<sub>M&amp;D</sub> &minus; &tau;<sub>S&amp;L</sub>.
+            Positive values indicate stronger agreement under M&amp;D, negative
+            under S&amp;L. Reasoning-heavy pairs (GPQA &harr; ARC, GPQA &harr; CSQA)
+            tighten under M&amp;D once shared evaluation artifacts are removed.
+          </p>
+        </div>
+
+      </div>
+    </div>
+    <!--/ Results. -->
+
+
+    <!-- Related Work. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="related">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            Several recent works study evaluation artifacts in MCQ-based LLM benchmarking. We invite you to check them out as well.
+          </p>
+          <ul>
+            <li>
+              <a href="https://openreview.net/forum?id=shr9PXz7T0">Zheng et&nbsp;al. (ICLR&nbsp;2024)</a>
+              and <a href="https://aclanthology.org/2024.lrec-main.1229/">Zhou et&nbsp;al. (LREC-COLING&nbsp;2024)</a>
+              introduce answer-moving attacks and study label/position
+              sensitivity in MCQ evaluation.
+            </li>
+            <li>
+              <a href="https://aclanthology.org/2024.findings-naacl.130/">Pezeshkpour &amp; Hruschka (NAACL&nbsp;2024 Findings)</a>
+              quantify order sensitivity across diverse LLMs and prompt formats.
+            </li>
+            <li>
+              <a href="https://arxiv.org/abs/2502.14127">Balepur et&nbsp;al. (2025)</a>
+              and <a href="https://arxiv.org/abs/2507.02856">Chandak et&nbsp;al. (2025)</a>
+              argue for free-form answer generation and answer matching as
+              alternatives to letter selection.
+            </li>
+            <li>
+              <a href="https://aclanthology.org/2025.naacl-industry.39/">Nalbandyan et&nbsp;al. (NAACL&nbsp;2025)</a>
+              introduce the SCORE robustness metric we adopt and supplement
+              with a variance-ratio measurement.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!--/ Related Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title" id="bibtex">BibTeX</h2>
+    <pre style="white-space: pre-wrap; word-break: break-word;"><code>@inproceedings{nowak2026abcd,
+  author    = {Nowak, Mateusz and Cadet, Xavier and Chin, Peter},
+  title     = {{ABCD}: All Biases Come Disguised},
+  booktitle = {Proceedings of the 43rd International Conference on Machine Learning (ICML)},
+  year      = {2026},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="https://icml.cc/virtual/2026/poster/65588">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="#" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This page borrows the
+            <a href="https://github.com/nerfies/nerfies.github.io">Nerfies project page template</a>;
+            credit to the original authors.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

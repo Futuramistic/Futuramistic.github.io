@@ -1,0 +1,12 @@
+---
+layout: post
+title:  "RADAR: Relative Angular Divergence Across Representations"
+date:   2026-05-24 21:00:00 +00:00
+image: /images/RADAR.png
+categories: research
+authors: "Xavier Cadet*, <strong>Mateusz Nowak*</strong>,  Peter Chin"
+venue: "arxiv"
+arxiv: https://arxiv.org/abs/2501.17978
+---
+We propose RADAR, a simple, geometrically grounded metric for estimating cross-domain transferability in foundation models. RADAR analyzes the layer-wise evolution
+of representations by measuring angular alignments and relative changes in distance along layer-to-layer displacement trajectories, and by comparing empirical distributions of within-domain and cross-domain dynamics. We hypothesize that domain transferability is related to the divergence between these trajectory distributions. We evaluate the metric across multiple modalities, including cross-lingual sentiment classification with text embedding models and cross-domain image classification with foundation vision models.

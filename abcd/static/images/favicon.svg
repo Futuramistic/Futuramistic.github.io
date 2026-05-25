@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <title>ABCD favicon</title>
+  <desc>A bold serif letter A on a white rounded card with a pink border, with a dark domino mask covering the apex of the A. Companion icon to the ABCD project hero graphic.</desc>
+
+  <!-- Card -->
+  <rect x="8" y="8" width="240" height="240" rx="36"
+        fill="#ffffff" stroke="#d4546e" stroke-width="8"/>
+
+  <!-- Letter A -->
+  <text x="128" y="200"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="200" font-weight="700"
+        fill="#2c2c2c" text-anchor="middle">A</text>
+
+  <!-- Mask: scaled and positioned over the A's apex -->
+  <g transform="translate(128, 115) scale(2.7)">
+    <path d="M -30 -5 Q -30 -12 -22 -12 L -8 -12 Q -4 -12 0 -8 Q 4 -12 8 -12 L 22 -12 Q 30 -12 30 -5 L 30 3 Q 30 10 22 10 L 8 10 Q 4 10 0 6 Q -4 10 -8 10 L -22 10 Q -30 10 -30 3 Z"
+          fill="#1a1a2e"/>
+    <ellipse cx="-14" cy="-2" rx="6" ry="4" fill="#ffffff"/>
+    <ellipse cx="14" cy="-2" rx="6" ry="4" fill="#ffffff"/>
+  </g>
+</svg>

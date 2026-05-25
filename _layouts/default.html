@@ -1,0 +1,212 @@
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E00L9PT3V9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-E00L9PT3V9');
+  </script>
+  <title>{{ site.name }}</title>
+
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+
+  <meta name="author" content="{{ site.name }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
+  <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+  <table style="width:100%;max-width:800px;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+    <tr style="padding:0px">
+      <td style="padding:0px">
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+          <tr style="padding:0px">
+            <td style="padding:2.5%;width:60%;vertical-align:middle">
+              <h1>
+                Mateusz Nowak
+              </h1>
+              <p>
+                I am a second-year PhD student in the <a href="https://sites.dartmouth.edu/lisplab/mateusz-nowak/">LISP Lab</a> at the <a href="https://engineering.dartmouth.edu/">Thayer School of Engineering</a>, 
+                <a href="https://home.dartmouth.edu/">Dartmouth College</a>, where I work on 3D computer vision and multi-modal machine learning. 
+                My PhD advisor is <a href="https://sites.dartmouth.edu/lisplab/sang-peter-chin/">Peter Chin</a>. 
+                Additionally, in Winter 2025, I served as the head teaching assistant for <a href="https://engineering.dartmouth.edu/courses/engs106">ENGS106</a> at Dartmouth.
+              </p>
+              <p>
+                My background spans several research and industry roles with a strong focus on 3D computer vision and machine learning. 
+                Most recently, in the summer of 2025, I joined <a href="https://www.autodesk.com/">Autodesk Research UK</a> in London as an AI Research Scientist intern to work on vision-language models and 3D. 
+                Before that, I worked as a Machine Learning & Computer Vision intern on 3D Gaussian Splatting at <a href="https://research.samsung.com/sruk">Samsung Research UK (SRUK)</a> in Staines, UK, 
+                and as an AI Algorithm Development intern at <a href="https://www.huawei.com/en/">Huawei Technologies R&D UK</a> in Cambridge, UK, working on Neural Radiance Fields. 
+                My professional journey began in London with my first internship at <a href="https://www.mizuhogroup.com/emea">Mizuho EMEA</a>, where I worked as an Information Systems Department Summer Intern.
+              </p>
+              <p>
+
+                I hold an MSc in Computer Science with a major in Visual and Interactive Computing from <a href="https://inf.ethz.ch/u">ETH Zurich</a>. 
+                During my time there, I completed my master's thesis in collaboration with <a href="https://studios.disneyresearch.com/">Disney Research Zurich</a>, focusing on Neural Architecture Search 
+                under <a href="https://studios.disneyresearch.com/people/tunc-aydin/">Tunc Aydin</a> and <a href="https://studios.disneyresearch.com/people/farnood-salehi/">Farnood Salehi</a>. 
+                Previously, I earned my BSc in Computer Science (specializing in Artificial Intelligence) from <a href="https://www.kcl.ac.uk/informatics">King's College London</a>.
+                At King's, I served as a teaching assistant for <a href="https://www.kcl.ac.uk/people/christopher-hampson">Christopher Hampson</a> 
+                (<a href="https://www.kcl.ac.uk/abroad/module-options/module?id=e01a4900-771b-48dc-9aa0-c646cf4afa28">5CCS2FC2</a>), <a href="https://www.kcl.ac.uk/people/odinaldo-rodrigues">Odinaldo Rodrigues</a> 
+                (<a href="https://www.kcl.ac.uk/abroad/module-options/module?id=0acd4500-c070-4512-8884-fe4b6a6383c5">4CCS1ELA</a>), and Costas Iliopoulos
+                (<a href="https://www.kcl.ac.uk/abroad/module-options/module?id=4d076474-f0bf-4927-b4fc-bea75284fde6">4CCS1DST</a>), and also completed a year-long exchange at the <a href="https://www.comp.nus.edu.sg/cs/">National University of Singapore</a>.
+              </p>
+              <p style="text-align:center">
+                <a target="_blank" href="https://mailhide.io/e/B8TyS"> Email</a> &nbsp;/&nbsp;
+                <a href="https://github.com/Futuramistic">GitHub</a> &nbsp;/&nbsp;
+                <a href="https://scholar.google.com/citations?user=Os-TTEkAAAAJ&hl=en">Google Scholar</a> &nbsp;/&nbsp;
+                <a href="https://www.linkedin.com/in/mateusz-n-39730b185/"> LinkedIn </a> &nbsp;/&nbsp;
+                <a href="{{ '/books/' | relative_url }}"> Reading Log </a>
+              </p>
+            </td>
+            <td style="padding:2.5%;width:40%;max-width:40%">
+              <img style="width:100%;max-width:100%" alt="profile photo" src="images/me.jpg">
+            </td>
+          </tr>
+        </table>
+
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+          <tr>
+            <td style="padding:2.5%;width:100%;vertical-align:middle">
+              <h2>Research</h2>
+              <p>
+                I am interested in neural rendering, computer vision, multi-modal machine learning, optimization and graphics.
+              </p>
+            </td>
+          </tr>
+        </table>
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+
+          {% for post in site.posts %}
+          {% for cat in post.categories %}
+          {% if cat == 'research' %}
+          <tr>
+            <td style="padding:2.5%;width:25%;vertical-align:middle;min-width:120px">
+              <img src="/tn{{post.image}}" alt="project image" style="width:auto; height:auto; max-width:100%;" />
+            </td>
+            <td style="padding:2.5%;width:75%;vertical-align:middle">
+              <h3>{{post.title}}</h3>
+              <br>
+              {{post.authors}}
+
+              <br>
+              <em>{{post.venue}}</em>, {{ post.date | date: "%Y" }}
+              <br>
+              {% if post.arxiv %}
+              <a href="{{post.arxiv}}">arxiv</a>
+              {% endif %}
+              {% if post.arxivold %}
+              <a href="{{post.arxivold}}">arxiv (old)</a>
+              {% endif %}
+              {% if post.paper %}
+              <a href="{{post.paper}}">paper</a>
+              {% endif %}
+              {% if post.video %}
+              / <a href="{{post.video}}">video</a>
+              {% endif %}
+              {% if post.code %}
+              / <a href="{{post.code}}">code</a>
+              {% endif %}
+              {% if post.poster %}
+              / <a href="{{post.poster}}">poster</a>
+              {% endif %}
+              {% if post.slides %}
+              / <a href="{{post.slides}}">slides</a>
+              {% endif %}
+              {% if post.website %}
+              / <a href="{{post.website}}">project</a>
+              {% endif %}
+              {% if post.youtube %}
+              / <a href="{{post.youtube}}">youtube</a>
+              {% endif %}
+              <p></p>
+              {{ post.excerpt }}
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% endfor %}
+        </table>
+        <br>
+        <br>
+        <br>
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+          <tr>
+            <td style="padding:2.5%;width:100%;vertical-align:middle">
+              <h2>Other Projects</h2>
+              <p> These include coursework, side projects and unpublished research work. 
+              </p>
+            </td>
+          </tr>
+        </table>
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+
+          {% for post in site.posts %}
+          {% for cat in post.categories %}
+          {% if cat != 'research' and cat != 'Intel' %}
+          <tr>
+            <td style="padding:2.5%;width:25%;vertical-align:middle;min-width:120px">
+              <img src="/tn{{post.image}}" alt="project image" style="width:auto; height:auto; max-width:100%;" />
+            </td>
+            <td style="padding:2.5%;width:75%;vertical-align:middle">
+              <h3>{{post.title}}</h3>
+              <br>
+              <em>{{post.categories}} {{post.course}}</em>
+              <br>
+              {{ post.date | date: "%Y-%m-%d" }}
+
+              <br>
+              {% if post.paper %}
+              <a href="{{post.paper}}">paper</a>
+              {% endif %}
+              {% if post.website %}
+              / <a href="{{post.website}}">website</a>
+              {% endif %}
+              {% if post.patent %}
+              / <a href="{{post.patent}}">patent</a>
+              {% endif %}
+              {% if post.video %}
+              / <a href="{{post.video}}">video</a>
+              {% endif %}
+              {% if post.code %}
+              / <a href="{{post.code}}">code</a>
+              {% endif %}
+              {% if post.poster %}
+              / <a href="{{post.poster}}">poster</a>
+              {% endif %}
+              {% if post.slides %}
+              / <a href="{{post.slides}}">slides</a>
+              {% endif %}
+              <p></p>
+              {{ post.excerpt }}
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% endfor %}
+        </table>
+
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;">
+          <tr>
+            <td style="padding:0px">
+              <br>
+              <p style="text-align:center;font-size:small;">
+                Design and source code from <a style="font-size:small;" href="https://jonbarron.info">Jon Barron's website</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>
+

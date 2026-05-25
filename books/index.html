@@ -1,0 +1,154 @@
+---
+layout: null
+title: Reading Log
+---
+
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E00L9PT3V9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-E00L9PT3V9');
+  </script>
+  <title>{{ site.name }} - Reading Log</title>
+
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <meta name="author" content="{{ site.name }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
+  <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+  <style>
+    /* Book Grid Layout */
+    .bookshelf-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2.5%;
+      font-family: 'Lato', sans-serif;
+    }
+    
+    .year-section {
+      margin-bottom: 40px;
+    }
+
+    .year-title {
+      border-bottom: 2px solid #eaeaea;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 20px;
+    }
+
+    /* Book Hover Effect */
+    .book-item {
+      position: relative;
+      display: block;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .book-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .book-cover {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 2 / 3;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* The "Tiny Information" Overlay */
+    .book-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 10px;
+      box-sizing: border-box;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      text-align: center;
+      font-size: 0.85em;
+    }
+
+    .book-item:hover .book-info {
+      opacity: 1;
+    }
+
+    .book-info strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bookshelf-container">
+    
+    <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-bottom:40px;">
+      <tr>
+        <td style="width:70%;vertical-align:middle">
+          <h1>My Reading Log</h1>
+
+          <p>
+            A visual log of the books I have read, organized by year, from 2026 onwards.</p> 
+          <p>
+            <a href="{{ '/' | relative_url }}" style="text-decoration: none; font-weight: bold;"> ← Back to Home</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+    
+    {% assign booksByYear = site.books | sort: "date" | reverse | group_by_exp:"book", "book.date | date: '%Y'" %}    
+    {% for year in booksByYear %}
+      <div class="year-section">
+        <h2 class="year-title">{{ year.name }} ({{ year.items | size }} books)</h2>
+        
+        <div class="book-grid">
+          {% for book in year.items %}
+            <a href={{book.external_link}} class="book-item">
+              <img src="{{ book.image }}" alt="{{ book.title }}" class="book-cover" loading="lazy">
+              
+              <div class="book-info">
+                <strong>{{ book.title }}</strong>
+                <em>by {{ book.author }}</em>
+                {% if book.rating %}<br>⭐ {{ book.rating }}/5{% endif %}
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-top:40px;">
+      <tr>
+        <td style="padding:0px">
+          <p style="text-align:center;font-size:small;color:#777;">
+            Design adapted from <a style="font-size:small;color:#777;" href="https://jonbarron.info">Jon Barron's website</a>.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
