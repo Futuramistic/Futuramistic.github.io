@@ -6,6 +6,7 @@ image: /images/RADAR.png
 categories: research
 authors: "Xavier Cadet*, <strong>Mateusz Nowak*</strong>,  Peter Chin"
 venue: "arxiv"
+website: /radar
 arxiv: https://arxiv.org/abs/2501.17978
 ---
 We propose RADAR, a simple, geometrically grounded metric for estimating cross-domain transferability in foundation models. RADAR analyzes the layer-wise evolution
