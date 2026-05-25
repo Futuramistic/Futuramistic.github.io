@@ -173,26 +173,42 @@
               {{ post.date | date: "%Y-%m-%d" }}
 
               <br>
+              {% assign sep = "" %}
               {% if post.paper %}
-              <a href="{{post.paper}}">paper</a>
+                {{ sep }}<a href="{{post.paper}}"><i class="fas fa-file-pdf"></i>&nbsp;Paper</a>
+                {% assign sep = " / " %}
               {% endif %}
-              {% if post.website %}
-              / <a href="{{post.website}}">website</a>
+              {% if post.arxiv %}
+                {{ sep }}<a href="{{post.arxiv}}"><i class="ai ai-arxiv"></i>&nbsp;arXiv</a>
+                {% assign sep = " / " %}
               {% endif %}
-              {% if post.patent %}
-              / <a href="{{post.patent}}">patent</a>
+              {% if post.arxivold %}
+                {{ sep }}<a href="{{post.arxivold}}"><i class="ai ai-arxiv"></i>&nbsp;arXiv (old)</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.video %}
-              / <a href="{{post.video}}">video</a>
+                {{ sep }}<a href="{{post.video}}"><i class="fas fa-video"></i>&nbsp;Video</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.code %}
-              / <a href="{{post.code}}">code</a>
+                {{ sep }}<a href="{{post.code}}"><i class="fab fa-github"></i>&nbsp;GitHub</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.poster %}
-              / <a href="{{post.poster}}">poster</a>
+                {{ sep }}<a href="{{post.poster}}"><i class="fas fa-image"></i>&nbsp;Poster</a>
+                {% assign sep = " / " %}
               {% endif %}
               {% if post.slides %}
-              / <a href="{{post.slides}}">slides</a>
+                {{ sep }}<a href="{{post.slides}}"><i class="fas fa-person-chalkboard"></i>&nbsp;Slides</a>
+                {% assign sep = " / " %}
+              {% endif %}
+              {% if post.website %}
+                {{ sep }}<a href="{{post.website}}"><i class="fas fa-project-diagram"></i>&nbsp;Project</a>
+                {% assign sep = " / " %}
+              {% endif %}
+              {% if post.youtube %}
+                {{ sep }}<a href="{{post.youtube}}"><i class="fab fa-youtube"></i>&nbsp;YouTube</a>
+                {% assign sep = " / " %}
               {% endif %}
               <p></p>
               {{ post.excerpt }}
