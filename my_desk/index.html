@@ -7,7 +7,7 @@ title: Demos
 <html lang="en">
 
 <head>
-  <title>{{ site.name }} - Demos</title>
+  <title>{{ site.name }} - Demo</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
@@ -22,7 +22,7 @@ title: Demos
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="preload" as="fetch" href="https://huggingface.co/datasets/matnowak/desk/resolve/main/point_cloud.ply" crossorigin="anonymous">
+  <link rel="preload" as="fetch" href="https://huggingface.co/datasets/matnowak/desk/resolve/main/my_desk.ksplat" crossorigin="anonymous">
 
   <style>
     body, table, td, p, li, a, strong, h1, h2, h3, h4 {
@@ -79,7 +79,7 @@ title: Demos
 <body>
   <div class="container">
 
-    <h1>Demos</h1>
+    <h1>3DGS &mdash; Demo</h1>
 
     <p>
       <a href="{{ '/' | relative_url }}" style="text-decoration: none; font-weight: bold;">
@@ -87,19 +87,20 @@ title: Demos
       </a>
     </p>
 
-    <h2>Scene name</h2>
+    <h2>My natural habitat &mdash; my desk</h2>
     <p>
-      A 3D Gaussian Splatting reconstruction. Brief description of what the scene is and how it was captured / trained.
-      Drag to rotate, scroll to zoom, right-drag to pan.
+      A 3D Gaussian Splatting reconstruction of my day-to-day desk at Dartmouth. 
+      The desk was captured on a phone, 38 s of 60 FPS FHD video. 
+      The standard pipeline used for processing is described below.
     </p>
 
     <div id="viewer-host" class="viewer-host"></div>
     <p class="viewer-hint">
-      ~XX&nbsp;MB &middot; loads on demand
+      46.2&nbsp;MB &middot; loads on demand
     </p>
     <pre class="camera-info" id="camera-info" aria-live="polite">camera: ready</pre>
 
-  </div>
+
 
   <script type="module">
     import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
@@ -107,14 +108,18 @@ title: Demos
     const viewer = new GaussianSplats3D.Viewer({
       rootElement: document.getElementById('viewer-host'),
       cameraUp: [0, -1, -0.5],
-      initialCameraPosition: [0.20, 3.00, -1.15],
-      initialCameraLookAt: [-0.05, -1.27, 5.94],
-      sharedMemoryForWorkers: false
+      initialCameraPosition: [-0.46, 1.72, -5.13],
+      initialCameraLookAt: [-0.79, -2.60, 4.65],
+      sharedMemoryForWorkers: false,
+      sphericalHarmonicsDegree: 2,
+      integerBasedSort: false,                  // ← add this
+      splatSortDistanceMapPrecision: 18,         // ← and this
+      gpuAcceleratedSort: false,
     });
     viewer.renderer.setClearColor(0xffffff, 1);
-    viewer.addSplatScene('https://huggingface.co/datasets/matnowak/desk/resolve/main/point_cloud.ply', {
+    viewer.addSplatScene('https://huggingface.co/datasets/matnowak/desk/resolve/main/my_desk.ksplat', {
       showLoadingUI: true,
-      progressiveLoad: true
+      progressiveLoad: false
     }).then(() => {
       viewer.start();
 
@@ -132,6 +137,29 @@ title: Demos
       console.error('Failed to load splat scene:', err);
     });
   </script>
+    <h3>Pre-processing</h3>
+    <p>
+      Since the capture is quite dense, I downsampled the number of temporal frames &mdash; I only used every fourth frame in my capture. 
+      That's 38 s × 60 FPS / 4 ≈ 570 frames. To capture the camera extrinsics and intrinsics, I ran the standard <a href="https://colmap.org/">COLMAP</a> pipeline.
+    </p>
+    <h3>Gaussian Splatting</h3>
+    <p>
+      For Gaussian Splatting, I used the <a href="https://ubc-vision.github.io/3dgs-mcmc/">3DGS-MCMC</a> pipeline with 
+      a max cap of 6,000,000 splats with initial 30,000 iterations. 
+      After training, I used a different train/test split, to finetune further for 5,000 iterations twice.
+    </p>
+    <h3>Viewer</h3>
+    <p> 
+      The final scene was rendered in your browser using <a href="https://github.com/mkkellogg/GaussianSplats3D"><code>mkkellogg/gaussian-splats-3d</code></a>. 
+      Given the initial scene was over 1 GB, I compressed it using the provided KSPLAT format to ~50 MB.
+    </p>
+    <h3>Ways to improve</h3>
+    <ul>
+      <li> Using diffusion models to inpaint / correct missing views (e.g., <a href="https://research.nvidia.com/labs/toronto-ai/difix3d/">Difix3D+</a>)</li>
+      <li> Cleaning the floaters using additional supervision (e.g., depth)</li>
+      <li> More splats and/or images</li>
+    </ul>
+  </div>
 
 </body>
 </html>
