@@ -1,0 +1,110 @@
+---
+layout: null
+title: Demos
+---
+
+<!DOCTYPE HTML>
+<html lang="en">
+
+<head>
+  <title>{{ site.name }} - Demos</title>
+
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <meta name="author" content="{{ site.name }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
+  <link rel="canonical" href="{{ page.url | replace:'index.html','' | prepend: site.baseurl | prepend: site.url }}">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+      rel="stylesheet" type="text/css">
+  <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+  <style>
+    body, table, td, p, li, a, strong, h1, h2, h3, h4 {
+      font-family: 'Google Sans', sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2.5%;
+    }
+
+    .viewer-host {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: #fff;          /* was #111 */
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    
+    .viewer-hint {
+      font-size: 0.85em;
+      color: #777;
+      margin-top: 8px;
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "@mkkellogg/gaussian-splats-3d": "https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.5/build/gaussian-splats-3d.module.js"
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <div class="container">
+
+    <h1>Demos</h1>
+
+    <p>
+      <a href="{{ '/' | relative_url }}" style="text-decoration: none; font-weight: bold;">
+        <i class="fas fa-arrow-left"></i>&nbsp;Back to Home
+      </a>
+    </p>
+
+    <h2>Scene name</h2>
+    <p>
+      A 3D Gaussian Splatting reconstruction. Brief description of what the scene is and how it was captured / trained.
+      Drag to rotate, scroll to zoom, right-drag to pan.
+    </p>
+
+    <div id="viewer-host" class="viewer-host"></div>
+    <p class="viewer-hint">
+      ~XX&nbsp;MB &middot; loads on demand
+    </p>
+
+  </div>
+
+  <script type="module">
+    import * as GaussianSplats3D from '@mkkellogg/gaussian-splats-3d';
+
+    const viewer = new GaussianSplats3D.Viewer({
+      rootElement: document.getElementById('viewer-host'),
+      cameraUp: [0, -1, -0.5],
+      initialCameraPosition: [0, -1, 4],
+      initialCameraLookAt: [0, 0, 0],
+      sharedMemoryForWorkers: false
+    });
+    viewer.renderer.setClearColor(0xffffff, 1);
+    viewer.addSplatScene('point_cloud_car.ply', {
+      showLoadingUI: true,
+      progressiveLoad: true
+    }).then(() => {
+      viewer.start();
+    }).catch((err) => {
+      console.error('Failed to load splat scene:', err);
+    });
+  </script>
+
+</body>
+</html>
