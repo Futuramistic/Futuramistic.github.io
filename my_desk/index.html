@@ -8,6 +8,7 @@ title: Demos
 
 <head>
   <title>{{ site.name }} - Demos</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
   <meta name="author" content="{{ site.name }}" />
@@ -21,6 +22,9 @@ title: Demos
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="preload" as="fetch"
+      href="{{ '/demos/point_cloud_car.ply' | relative_url }}"
+      crossorigin="anonymous">
 
   <style>
     body, table, td, p, li, a, strong, h1, h2, h3, h4 {
@@ -43,7 +47,7 @@ title: Demos
       overflow: hidden;
       margin-top: 20px;
     }
-    
+
     .viewer-hint {
       font-size: 0.85em;
       color: #777;
@@ -96,7 +100,7 @@ title: Demos
       sharedMemoryForWorkers: false
     });
     viewer.renderer.setClearColor(0xffffff, 1);
-    viewer.addSplatScene('point_cloud_car.ply', {
+    viewer.addSplatScene("{{ '/demos/point_cloud_car.ply' | relative_url }}", {
       showLoadingUI: true,
       progressiveLoad: true
     }).then(() => {
