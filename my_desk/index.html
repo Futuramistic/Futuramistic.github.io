@@ -22,7 +22,7 @@ title: Demos
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="preload" as="fetch" href="point_cloud_car.ply" crossorigin="anonymous">
+  <link rel="preload" as="fetch" href="https://huggingface.co/datasets/matnowak/desk/resolve/main/point_cloud.ply" crossorigin="anonymous">
 
   <style>
     body, table, td, p, li, a, strong, h1, h2, h3, h4 {
@@ -51,6 +51,19 @@ title: Demos
       color: #777;
       margin-top: 8px;
     }
+
+    .camera-info {
+      font-size: 0.75em;
+      color: #555;
+      background: #f6f6f6;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 6px;
+      font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
   </style>
 
   <script type="importmap">
@@ -84,6 +97,7 @@ title: Demos
     <p class="viewer-hint">
       ~XX&nbsp;MB &middot; loads on demand
     </p>
+    <pre class="camera-info" id="camera-info" aria-live="polite">camera: ready</pre>
 
   </div>
 
@@ -93,16 +107,27 @@ title: Demos
     const viewer = new GaussianSplats3D.Viewer({
       rootElement: document.getElementById('viewer-host'),
       cameraUp: [0, -1, -0.5],
-      initialCameraPosition: [0, -1, 4],
-      initialCameraLookAt: [0, 0, 0],
+      initialCameraPosition: [0.20, 3.00, -1.15],
+      initialCameraLookAt: [-0.05, -1.27, 5.94],
       sharedMemoryForWorkers: false
     });
     viewer.renderer.setClearColor(0xffffff, 1);
-    viewer.addSplatScene('point_cloud_car.ply', {
+    viewer.addSplatScene('https://huggingface.co/datasets/matnowak/desk/resolve/main/point_cloud.ply', {
       showLoadingUI: true,
       progressiveLoad: true
     }).then(() => {
       viewer.start();
+
+      const infoEl = document.getElementById('camera-info');
+      const update = () => {
+        const p = viewer.camera.position;
+        const t = viewer.controls.target;
+        infoEl.textContent =
+          `initialCameraPosition: [${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}],\n` +
+          `initialCameraLookAt:   [${t.x.toFixed(2)}, ${t.y.toFixed(2)}, ${t.z.toFixed(2)}]`;
+        requestAnimationFrame(update);
+      };
+      update();
     }).catch((err) => {
       console.error('Failed to load splat scene:', err);
     });
