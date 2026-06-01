@@ -126,7 +126,7 @@
                 {% assign sep = " / " %}
               {% endif %}
               {% if post.slides %}
-                {{ sep }}<a href="{{post.slides}}"><i class="fas fa-person-chalkboard"></i>&nbsp;Slides</a>
+                {{ sep }}<a href="{{post.slides}}"><i class="fas fa-file-powerpoint"></i>&nbsp;Slides</a>
                 {% assign sep = " / " %}
               {% endif %}
               {% if post.website %}
@@ -135,6 +135,10 @@
               {% endif %}
               {% if post.youtube %}
                 {{ sep }}<a href="{{post.youtube}}"><i class="fab fa-youtube"></i>&nbsp;YouTube</a>
+                {% assign sep = " / " %}
+              {% endif %}
+              {% if post.poster %}
+                {{ sep }}<a href="{{post.poster}}"><i class="fas fa-person-chalkboard"></i>&nbsp;Poster</a>
                 {% assign sep = " / " %}
               {% endif %}
               <p></p>
