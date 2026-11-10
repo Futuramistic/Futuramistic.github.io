@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="VoD-3DGS: View-Dependent Opacity for 3D Gaussian Splatting In the Wild. A lightweight extension of 3DGS that replaces scalar opacity with a view-dependent quadratic function, recovering specular highlights and reflections at real-time rates.">
+  <meta name="keywords" content="3D Gaussian Splatting, 3DGS, view-dependent opacity, specular reconstruction, novel view synthesis, SGGX, VoD-3DGS">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="canonical" href="https://futuramistic.github.io/vod/">
+  <title>VoD-3DGS: View-Dependent Opacity for 3D Gaussian Splatting In the Wild</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <link rel="icon" href="./static/images/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="./static/images/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="./static/images/apple-touch-icon.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <style>
+    /* Ranking colours — match the paper's Table 1 */
+    .results-table td.rank-1, .swatch.rank-1 { background-color: #F5999A !important; }
+    .results-table td.rank-2, .swatch.rank-2 { background-color: #F8CD99 !important; }
+    .results-table td.rank-3, .swatch.rank-3 { background-color: #FCF9AD !important; }
+
+    .results-table td, .results-table th { text-align: center; vertical-align: middle; }
+    .results-table td.method { text-align: left; white-space: nowrap; }
+    @media (max-width: 480px) { .results-table td.method { white-space: normal; } }
+    .results-table .ds-end { border-right: 2px solid #999 !important; }
+    .results-table tr.section-row td {
+      background: #f0f0f0; font-weight: bold; text-align: center;
+    }
+    .results-table tr.group-sep td { border-top: 2px solid #999 !important; }
+    .results-table tr.double-sep td { border-top: 4px double #999 !important; }
+    .results-table tr.ours td.method { background: #fafafa; }
+
+    .swatch {
+      display: inline-block; padding: 0 0.4em; border-radius: 3px;
+      color: #333; font-style: normal;
+    }
+
+    /* ---------- Three-way comparison slider ---------- */
+    .cmp3 {
+      position: relative; width: 100%; overflow: hidden;
+      border-radius: 8px; background: #e8e8e8;
+      user-select: none; -webkit-user-select: none;
+      touch-action: pan-y; cursor: ew-resize;
+    }
+    .cmp3-img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      pointer-events: none; -webkit-user-drag: none;
+    }
+    .cmp3-handle {
+      position: absolute; top: 0; bottom: 0; width: 32px; margin-left: -16px;
+      z-index: 3; cursor: ew-resize; outline: none;
+    }
+    .cmp3-handle::before {
+      content: ""; position: absolute; top: 0; bottom: 0; left: 15px; width: 2px;
+      background: #fff; box-shadow: 0 0 4px rgba(0,0,0,0.6);
+    }
+    .cmp3-knob {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #fff; color: #333; box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: bold; line-height: 1; letter-spacing: -1px;
+    }
+    .cmp3-handle:focus-visible .cmp3-knob { box-shadow: 0 0 0 3px #3273dc; }
+    .cmp3-label {
+      position: absolute; top: 8px; z-index: 2; pointer-events: none;
+      padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+      background: rgba(0,0,0,0.6); color: #fff;
+      font-size: 0.75rem; line-height: 1.4; transition: opacity 0.15s;
+    }
+    .cmp3-label-left  { left: 8px; }
+    .cmp3-label-right { right: 8px; }
+    /* Merged divider (GT vs. ours) with two small split knobs */
+    .cmp3-merged {
+      position: absolute; top: 0; bottom: 0; width: 32px; margin-left: -16px;
+      z-index: 4; cursor: ew-resize;
+    }
+    .cmp3-merged::before {
+      content: ""; position: absolute; top: 0; bottom: 0; left: 14.5px; width: 3px;
+      background: #fff; box-shadow: 0 0 4px rgba(0,0,0,0.6);
+    }
+    .cmp3-merged .cmp3-knob { outline: none; }
+    .cmp3-merged .cmp3-knob:focus-visible { box-shadow: 0 0 0 3px #3273dc; }
+    .cmp3-mini {
+      position: absolute; left: 50%; transform: translate(-50%, -50%);
+      width: 24px; height: 24px; border-radius: 50%;
+      background: #fff; color: #222; opacity: 0.7;
+      border: 2px dotted #222; box-sizing: border-box;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: bold; line-height: 1; letter-spacing: -1px;
+      cursor: grab; outline: none; transition: transform 0.12s, opacity 0.12s;
+    }
+    .cmp3-mini:hover, .cmp3-mini:focus-visible {
+      opacity: 1; transform: translate(-50%, -50%) scale(1.15);
+    }
+    .cmp3-mini:focus-visible { box-shadow: 0 0 0 3px #3273dc; }
+    .cmp3-mini-top    { top: 30%; }
+    .cmp3-hint { font-size: 0.75rem; color: #777; text-align: center; margin-top: 0.4rem; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+       data-target="navbarMain">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu" id="navbarMain">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://futuramistic.github.io/">
+        <span class="icon"><i class="fas fa-home"></i></span>
+        <span>&nbsp;Home</span>
+      </a>
+      <a class="navbar-item" href="https://arxiv.org/abs/2501.17978">
+        <span class="icon"><i class="ai ai-arxiv"></i></span>
+        <span>&nbsp;arXiv</span>
+      </a>
+      <a class="navbar-item" href="#method">
+        <span class="icon"><i class="fas fa-project-diagram"></i></span>
+        <span>&nbsp;Method</span>
+      </a>
+      <a class="navbar-item" href="#results">
+        <span class="icon"><i class="fas fa-chart-line"></i></span>
+        <span>&nbsp;Results</span>
+      </a>
+      <a class="navbar-item" href="#">
+        <span class="icon"><i class="fab fa-github"></i></span>
+        <span>&nbsp;Code (coming soon)</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.navbar-burger').forEach(burger => {
+      burger.addEventListener('click', () => {
+        const target = document.getElementById(burger.dataset.target);
+        burger.classList.toggle('is-active');
+        if (target) target.classList.toggle('is-active');
+      });
+    });
+  });
+</script>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">VoD-3DGS: View-Dependent Opacity for 3D&nbsp;Gaussian&nbsp;Splatting In&nbsp;the&nbsp;Wild</h1>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://futuramistic.github.io/">Mateusz Nowak</a>,</span>
+            <span class="author-block">
+              <a href="https://sites.dartmouth.edu/lisplab/xavier-cadet/">Xavier Cadet</a>,</span>
+            <span class="author-block">
+              <a href="https://sites.dartmouth.edu/lisplab/sang-peter-chin/">Peter Chin</a>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Dartmouth College</span>
+          </div>
+
+          <div class="is-size-5 publication-authors" style="margin-top: 0.75em;">
+            <span class="author-block">WACV&nbsp;2027 <span class="fi fi-us"></span></span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper (coming soon)</span>
+                </a>
+              </span>
+              <!-- arXiv Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2501.17978"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (coming soon)</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div class="cmp3" style="aspect-ratio: 1 / 1; max-width: 600px; margin: 0 auto;" role="group"
+           aria-label="Three-way comparison: GT, 3DGS, VoD-3DGS. Drag the dividers to compare, or push them together to compare ground truth with ours.">
+        <img class="cmp3-img" src="./static/images/drums_vod.png" alt="NeRF-Synthetic Drums scene. Ground truth, 3DGS, and VoD-3DGS side by side: 3DGS blurs the cymbal highlights and drum reflections, VoD-3DGS recovers them sharply.">
+        <img class="cmp3-img cmp3-mid" src="./static/images/drums_baseline.png" alt="">
+        <img class="cmp3-img cmp3-left" src="./static/images/drums_gt.png" alt="">
+        <span class="cmp3-label cmp3-label-left">GT</span>
+        <span class="cmp3-label cmp3-label-mid">3DGS</span>
+        <span class="cmp3-label cmp3-label-right">VoD-3DGS</span>
+        <div class="cmp3-handle" data-h="a" role="slider" tabindex="0"
+             aria-label="GT / 3DGS divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+        <div class="cmp3-handle" data-h="b" role="slider" tabindex="0"
+             aria-label="3DGS / VoD-3DGS divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+      </div>
+      <p class="cmp3-hint"><i class="fas fa-hand-pointer"></i>&nbsp;Drag the dividers to compare &mdash; push them together to compare GT with VoD-3DGS directly</p>
+      <h2 class="subtitle has-text-centered" style="margin-top: 1.5rem;">
+        3DGS can't tell a surface from a highlight on it &mdash;
+        scalar opacity looks the same from every angle, but a
+        specular highlight doesn't. <br>
+        <strong>VoD-3DGS</strong> makes opacity view-dependent &mdash;
+        one small symmetric matrix per Gaussian &mdash; recovering
+        sharp specular highlights and reflections
+        <strong>without neural networks or custom CUDA kernels</strong>,
+        at 96&ndash;156&nbsp;FPS.
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3" id="abstract">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Reconstructing real-world scenes is challenging because
+            surface appearance varies with viewing angle and material,
+            and standard 3D Gaussian Splatting (3DGS) handles this
+            poorly: its scalar opacity cannot separate a surface from
+            the specular highlights and reflections on it.
+          </p>
+          <p>
+            We propose a lightweight 3DGS extension that replaces scalar
+            opacity with a <strong>view-dependent quadratic function</strong>
+            parameterized by a learnable symmetric matrix. This allows
+            certain Gaussians to be suppressed based on the viewing
+            angle, enabling more accurate rendering of highlights and
+            reflections while leaving diffuse regions intact.
+          </p>
+          <p>
+            Across most datasets, our method is top-ranked on perceptual
+            (LPIPS) and structural (SSIM) quality &mdash; with the
+            <strong>largest gains on specular-rich scenes</strong>
+            over 3DGS-based baselines &mdash; at 96&ndash;156&nbsp;FPS
+            without custom CUDA kernels.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+
+    <!-- Problem. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="problem">The Scalar-Opacity Problem</h2>
+        <div class="content has-text-justified">
+          <p>
+            Every Gaussian in 3DGS carries a single, view-independent
+            opacity &alpha;. A pixel's color blends front-to-back along
+            a ray weighted by that opacity &mdash; and the weight is the
+            same whether you're looking at the Gaussian head-on or at a
+            glancing angle.
+          </p>
+          <p>
+            That's a problem for anything shiny. A <em>specular
+            highlight</em> is view-dependent by definition &mdash;
+            you only see the glare on a cymbal from certain angles,
+            and you only see the window reflected in a tabletop
+            when the camera lines up. With scalar opacity, 3DGS has
+            two options, both bad: smear the geometry with extra
+            Gaussians to approximate the highlight (floaters), or
+            lose the highlight entirely. Either way, you get blur
+            where you wanted a sharp specular response.
+          </p>
+          <p>
+            Prior work has fixed this by piling on complexity: neural
+            residuals on top of a base color, learned shading
+            functions, deferred-shading passes, ray tracing through
+            auxiliary MLPs. All of them trade real-time rendering
+            for specular quality, and most are only validated on
+            synthetic scenes.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Problem. -->
+
+
+    <div class="columns is-centered">
+
+      <!-- View-dependent opacity. -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-3" id="method">View-Dependent Opacity</h2>
+          <p>
+            Replace the scalar opacity with a quadratic function of
+            viewing direction &omega;:
+          </p>
+          <p class="has-text-centered" style="font-size: 1.1em; margin: 1em 0;">
+            &alpha;&#770;<sub>i</sub>(&omega;) = &sigma;(&gamma;<sub>i</sub> + &omega;<sup>T</sup> S&#770;<sub>i</sub> &omega;)
+          </p>
+          <p>
+            Each Gaussian gets a learnable 3&times;3 symmetric matrix
+            <strong>S&#770;<sub>i</sub></strong> &mdash; six parameters
+            &mdash; plus the usual scalar bias &gamma;<sub>i</sub>.
+            From a diffuse angle, S&#770; contributes little; from a
+            glancing specular angle, it can suppress or boost the
+            Gaussian decisively. The sigmoid keeps everything in
+            [0,&nbsp;1].
+          </p>
+          <div class="columns is-centered">
+          <div class="column content">
+          <img src="./static/images/vod_opacity_illustration_3dgs.png"
+               alt="3DGS: a white Gaussian sits in front of a red Gaussian and is seen by three cameras. Its opacity is a single scalar, so all three cameras observe the same pink blend."
+               style="width: 100%; height: auto; border-radius: 8px;">
+               </div>
+          <div class="column content">
+          <img src="./static/images/vod_opacity_illustration_us.png"
+               alt="VoD-3DGS: the same two Gaussians and three cameras. The front Gaussian's opacity depends on the viewing direction, so camera 1 sees almost white, camera 2 sees straight through to the red Gaussian, and camera 3 sees a blend."
+               style="width: 100%; height: auto; border-radius: 8px;">
+          </div>
+          </div>
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>Scalar vs. view-dependent opacity.</strong>
+            A white Gaussian in front of a red one, seen from three cameras.
+            With scalar opacity (left) every camera sees the same pink blend.
+            With view-dependent opacity (right) the front Gaussian fades out
+            for camera&nbsp;2, which sees the red surface behind it, while
+            camera&nbsp;1 still sees it almost opaque.
+            The quadratic form &omega;<sup>T</sup>S&#770;&omega; is
+            equivalent to spherical harmonics of degrees&nbsp;0 and&nbsp;2
+            (full derivation in the paper), so the expressive power
+            matches an SH&nbsp;deg-2 opacity. The symmetric-matrix
+            parameterization with an explicit bias term is just
+            easier to optimize &mdash; validated in
+            the paper&rsquo;s ablations.
+          </p>
+        </div>
+      </div>
+      <!--/ View-dependent opacity. -->
+
+      <!-- Pipeline. -->
+      <div class="column">
+        <h2 class="title is-3" id="pipeline">Supporting Changes</h2>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              Changing opacity is the headline. Three supporting
+              changes keep training stable and memory low:
+            </p>
+            <ul>
+              <li><strong>Density control over sampled views.</strong>
+                3DGS prunes Gaussians whose opacity drops below a
+                threshold &tau;. With view-dependent opacity, "below
+                &tau;" has to mean <em>on average</em> across viewing
+                directions &mdash; we evaluate mean opacity over a
+                random subset of training cameras.</li>
+              <li><strong>Opacity reset via eigendecomposition.</strong>
+                The original 3DGS periodically resets opacity to
+                suppress floaters. We generalize this by resetting
+                S&#770; to its dominant eigencomponent &mdash; keeping
+                the strongest view-dependent direction, zeroing the
+                rest.</li>
+              <li><strong>Specular-to-diffuse transition.</strong>
+                Most of a scene is diffuse. Every 3,000 iterations
+                post-densification we score each Gaussian by its
+                opacity entropy H<sub>&alpha;</sub> and color entropy
+                H<sub>c</sub> across uniform viewing directions, cluster
+                with HDBSCAN, and zero out S&#770; and higher-order
+                color SH coefficients for the view-independent cluster.
+                Parameter count per diffuse Gaussian drops from 48+7
+                to 3+1 &mdash; a &gt;90% reduction on the
+                majority of the scene.</li>
+            </ul>
+            <p>
+              <strong>Losses.</strong>
+              On top of the standard L1 + D-SSIM objective, a view-consistency loss L<sub>vc</sub> over LightGlue
+              keypoint-matched image pairs regularizes opacity to
+              change smoothly with viewing angle, with light
+              L<sub>2</sub> regularizers on S&#770; and the
+              higher-order color SH coefficients.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/ Pipeline. -->
+
+
+    <!-- Results. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="results">Results</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            We evaluate on five datasets &mdash; three real-world
+            (Mip-NeRF360, Tanks &amp; Temples, Deep Blending), two
+            synthetic (NeRF-Synthetic, Shiny Blender) &mdash; against
+            13 baselines spanning NeRFs, 3DGS variants, shading-based
+            methods, and neural-augmented 3DGS. We report two variants
+            of our method: <strong>VoD-3DGS</strong> on the standard
+            3DGS base and <strong>VoD-3DGS-MCMC</strong> on the
+            3DGS-MCMC base.
+          </p>
+        </div>
+
+        <div class="content has-text-centered" style="margin-top: -0.5rem;">
+          <p class="is-size-7" style="color: #777; font-style: italic;">
+            <i class="fas fa-info-circle"></i>&nbsp;<strong>How to read the table.</strong>
+            Values marked * are recomputed locally; others are reported
+            from the original papers.
+            Within each section:
+            <span class="swatch rank-1">best</span>
+            <span class="swatch rank-2">second-best</span>
+            <span class="swatch rank-3">third-best</span>.
+          </p>
+        </div>
+
+        <!-- Main results table -->
+        <div class="content has-text-centered">
+          <h3 class="title is-5">Novel view synthesis quality</h3>
+          <div style="overflow-x: auto;">
+          <table class="table is-bordered is-narrow is-hoverable is-fullwidth results-table" style="font-size: 0.85rem;">
+            <thead>
+              <tr>
+                <th rowspan="2" style="vertical-align: middle;">Method</th>
+                <th colspan="3" class="ds-end" style="text-align:center;">Mip-NeRF360</th>
+                <th colspan="3" class="ds-end" style="text-align:center;">Tanks &amp; Temples</th>
+                <th colspan="3" class="ds-end" style="text-align:center;">Deep Blending</th>
+                <th colspan="3" class="ds-end" style="text-align:center;">NeRF-Synthetic</th>
+                <th colspan="3" style="text-align:center;">Shiny Blender</th>
+              </tr>
+              <tr>
+                <th>LPIPS&nbsp;&darr;</th><th>PSNR&nbsp;&uarr;</th><th class="ds-end">SSIM&nbsp;&uarr;</th>
+                <th>LPIPS&nbsp;&darr;</th><th>PSNR&nbsp;&uarr;</th><th class="ds-end">SSIM&nbsp;&uarr;</th>
+                <th>LPIPS&nbsp;&darr;</th><th>PSNR&nbsp;&uarr;</th><th class="ds-end">SSIM&nbsp;&uarr;</th>
+                <th>LPIPS&nbsp;&darr;</th><th>PSNR&nbsp;&uarr;</th><th class="ds-end">SSIM&nbsp;&uarr;</th>
+                <th>LPIPS&nbsp;&darr;</th><th>PSNR&nbsp;&uarr;</th><th>SSIM&nbsp;&uarr;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="section-row"><td colspan="16">Methods &mdash; 3DGS-based and NeRF-based</td></tr>
+              <tr><td class="method">Mip-NeRF360</td><td>0.237</td><td class="rank-2">27.69</td><td class="ds-end">0.792</td><td>0.257</td><td>22.22</td><td class="ds-end">0.759</td><td>0.245</td><td>29.40</td><td class="ds-end">0.901</td><td>0.039</td><td>30.34</td><td class="ds-end">0.951</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+              <tr><td class="method">GES</td><td>0.250</td><td>26.91</td><td class="ds-end">0.794</td><td>0.198</td><td>23.35</td><td class="ds-end">0.836</td><td>0.252</td><td class="rank-3">29.68</td><td class="ds-end">0.901</td><td>&mdash;</td><td>&mdash;</td><td class="ds-end">&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td></tr>
+              <tr><td class="method">2DGS*</td><td>0.252</td><td>26.81</td><td class="ds-end">0.797</td><td>0.211</td><td>23.14</td><td class="ds-end">0.832</td><td>0.256</td><td>29.52</td><td class="ds-end">0.903</td><td>0.038</td><td>31.97</td><td class="ds-end">0.965</td><td>0.086</td><td>29.35</td><td>0.945</td></tr>
+              <tr><td class="method">3DCS*</td><td class="rank-1">0.204</td><td>27.31</td><td class="ds-end">0.802</td><td class="rank-1">0.157</td><td class="rank-2">23.95</td><td class="rank-3 ds-end">0.850</td><td class="rank-1">0.226</td><td>29.44</td><td class="ds-end">0.896</td><td>0.065</td><td>29.30</td><td class="ds-end">0.944</td><td>0.108</td><td>28.13</td><td>0.939</td></tr>
+              <tr><td class="method">3DGS*</td><td>0.215</td><td>27.53</td><td class="rank-3 ds-end">0.816</td><td class="rank-3">0.169</td><td class="rank-3">23.75</td><td class="rank-2 ds-end">0.852</td><td class="rank-2">0.238</td><td class="rank-2">29.77</td><td class="rank-3 ds-end">0.907</td><td class="rank-2">0.030</td><td class="rank-2">33.48</td><td class="rank-2 ds-end">0.970</td><td class="rank-3">0.083</td><td class="rank-3">30.40</td><td class="rank-3">0.946</td></tr>
+              <tr><td class="method">GaussianShader*</td><td>0.346</td><td>23.11</td><td class="ds-end">0.690</td><td>0.233</td><td>21.93</td><td class="ds-end">0.802</td><td>0.470</td><td>19.03</td><td class="ds-end">0.744</td><td class="rank-1">0.029</td><td class="rank-3">33.38</td><td class="rank-3 ds-end">0.968</td><td class="rank-2">0.080</td><td class="rank-1">30.89</td><td class="rank-1">0.955</td></tr>
+              <tr><td class="method">GS-IR*</td><td>0.266</td><td>25.40</td><td class="ds-end">0.759</td><td>0.244</td><td>22.16</td><td class="ds-end">0.774</td><td>0.345</td><td>25.74</td><td class="ds-end">0.842</td><td>0.060</td><td>30.11</td><td class="ds-end">0.937</td><td>0.179</td><td>25.61</td><td>0.854</td></tr>
+              <tr class="group-sep"><td class="method">Texture-GS*</td><td class="rank-2">0.211</td><td class="rank-3">27.62</td><td class="rank-1 ds-end">0.824</td><td>0.192</td><td>23.58</td><td class="ds-end">0.844</td><td>0.249</td><td class="rank-1">29.95</td><td class="rank-2 ds-end">0.908</td><td class="rank-3">0.033</td><td>32.47</td><td class="ds-end">0.966</td><td>0.089</td><td>30.07</td><td>0.943</td></tr>
+              <tr class="ours group-sep"><td class="method"><strong>VoD-3DGS (Ours)</strong></td><td class="rank-3">0.214</td><td class="rank-1">27.73</td><td class="rank-2 ds-end">0.818</td><td class="rank-2">0.162</td><td class="rank-1">24.27</td><td class="rank-1 ds-end">0.861</td><td class="rank-3">0.239</td><td class="rank-1">29.95</td><td class="rank-1 ds-end">0.909</td><td class="rank-1">0.029</td><td class="rank-1">33.75</td><td class="rank-1 ds-end">0.971</td><td class="rank-1">0.072</td><td class="rank-2">30.46</td><td class="rank-2">0.951</td></tr>
+              <tr class="section-row"><td colspan="16">Methods &mdash; 3DGS-MCMC-based and 3DGS with MLP-based</td></tr>
+              <tr><td class="method">3DGS-MCMC*</td><td class="rank-2">0.175</td><td>28.16</td><td class="rank-2 ds-end">0.843</td><td class="rank-1">0.145</td><td>24.30</td><td class="ds-end">0.866</td><td class="rank-2">0.230</td><td class="rank-3">29.87</td><td class="rank-1 ds-end">0.913</td><td class="rank-3">0.029</td><td>33.63</td><td class="rank-3 ds-end">0.971</td><td>0.079</td><td>30.61</td><td>0.949</td></tr>
+              <tr><td class="method">DBS*</td><td class="rank-3">0.176</td><td class="rank-2">28.36</td><td class="rank-3 ds-end">0.841</td><td class="rank-1">0.145</td><td class="rank-2">24.70</td><td class="rank-2 ds-end">0.870</td><td>0.237</td><td>29.79</td><td class="rank-2 ds-end">0.912</td><td class="rank-2">0.028</td><td class="rank-1">34.64</td><td class="rank-1 ds-end">0.973</td><td class="rank-2">0.070</td><td class="rank-3">30.85</td><td class="rank-2">0.952</td></tr>
+              <tr><td class="method">IBGS*</td><td>0.180</td><td class="rank-1">28.55</td><td class="rank-3 ds-end">0.841</td><td class="rank-2">0.147</td><td class="rank-1">24.93</td><td class="rank-1 ds-end">0.872</td><td class="rank-3">0.236</td><td class="rank-2">30.02</td><td class="rank-3 ds-end">0.911</td><td>0.091</td><td>25.89</td><td class="ds-end">0.883</td><td>0.123</td><td>25.93</td><td>0.904</td></tr>
+              <tr><td class="method">Spec-Gaussian*</td><td>0.190</td><td>27.97</td><td class="ds-end">0.817</td><td class="rank-3">0.156</td><td class="rank-3">24.53</td><td class="ds-end">0.860</td><td class="rank-1">0.226</td><td class="rank-1">30.33</td><td class="ds-end">0.906</td><td class="rank-1">0.027</td><td class="rank-2">34.09</td><td class="ds-end">0.969</td><td class="rank-3">0.071</td><td class="rank-1">30.99</td><td class="rank-3">0.951</td></tr>
+              <tr class="group-sep"><td class="method">Textured Gaussians*</td><td>0.220</td><td>27.28</td><td class="ds-end">0.792</td><td>0.180</td><td>23.60</td><td class="ds-end">0.834</td><td>0.251</td><td>29.59</td><td class="ds-end">0.894</td><td>0.041</td><td>32.10</td><td class="ds-end">0.961</td><td>0.096</td><td>29.47</td><td>0.940</td></tr>
+              <tr class="ours group-sep"><td class="method"><strong>VoD-3DGS-MCMC (Ours)</strong></td><td class="rank-1">0.172</td><td class="rank-3">28.35</td><td class="rank-1 ds-end">0.846</td><td class="rank-1">0.145</td><td>24.50</td><td class="rank-3 ds-end">0.869</td><td>0.242</td><td>29.55</td><td class="ds-end">0.910</td><td class="rank-2">0.028</td><td class="rank-3">33.97</td><td class="rank-2 ds-end">0.972</td><td class="rank-1">0.069</td><td class="rank-2">30.93</td><td class="rank-1">0.953</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>Headline:</strong> VoD-3DGS is top-ranked on
+            LPIPS and SSIM across most benchmarks. The MCMC variant
+            takes LPIPS and SSIM on Mip-NeRF360, and both variants
+            place in the top three on every synthetic dataset.
+          </p>
+        </div>
+
+        <!-- Qualitative examples -->
+        <div class="columns is-centered" style="margin-top: 1.5rem;">
+          <div class="column has-text-centered">
+            <div class="cmp3" style="aspect-ratio: 1297 / 840;" role="group"
+           aria-label="Three-way comparison: GT, 3DGS-MCMC, VoD-3DGS-MCMC. Drag the dividers to compare, or push them together to compare ground truth with ours.">
+        <img class="cmp3-img" src="./static/images/garden_vod.png" alt="Mip-NeRF360 Garden scene, close-up of the specular reflection on the table. Ground truth, 3DGS-MCMC, and VoD-3DGS-MCMC; the baseline blurs the reflection, VoD-3DGS-MCMC renders it sharply.">
+        <img class="cmp3-img cmp3-mid" src="./static/images/garden_baseline.png" alt="">
+        <img class="cmp3-img cmp3-left" src="./static/images/garden_gt.png" alt="">
+        <span class="cmp3-label cmp3-label-left">GT</span>
+        <span class="cmp3-label cmp3-label-mid">3DGS-MCMC</span>
+        <span class="cmp3-label cmp3-label-right">VoD-3DGS-MCMC</span>
+        <div class="cmp3-handle" data-h="a" role="slider" tabindex="0"
+             aria-label="GT / 3DGS-MCMC divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+        <div class="cmp3-handle" data-h="b" role="slider" tabindex="0"
+             aria-label="3DGS-MCMC / VoD-3DGS-MCMC divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+      </div>
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>Mip-NeRF360 &mdash; Garden.</strong>
+              The specular response at the table center improves
+              by over <strong>2.5&nbsp;dB PSNR</strong> against both
+              DBS and 3DGS-MCMC.
+            </p>
+          </div>
+          <div class="column has-text-centered">
+            <div class="cmp3" style="aspect-ratio: 1332 / 876;" role="group"
+           aria-label="Three-way comparison: GT, 3DGS-MCMC, VoD-3DGS-MCMC. Drag the dividers to compare, or push them together to compare ground truth with ours.">
+        <img class="cmp3-img" src="./static/images/johnson_vod.png" alt="Deep Blending Dr. Johnson scene. Ground truth, 3DGS-MCMC, and VoD-3DGS-MCMC; VoD-3DGS-MCMC keeps the tabletop highlights without creating spurious geometry under the table.">
+        <img class="cmp3-img cmp3-mid" src="./static/images/johnson_baseline.png" alt="">
+        <img class="cmp3-img cmp3-left" src="./static/images/johnson_gt.png" alt="">
+        <span class="cmp3-label cmp3-label-left">GT</span>
+        <span class="cmp3-label cmp3-label-mid">3DGS-MCMC</span>
+        <span class="cmp3-label cmp3-label-right">VoD-3DGS-MCMC</span>
+        <div class="cmp3-handle" data-h="a" role="slider" tabindex="0"
+             aria-label="GT / 3DGS-MCMC divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+        <div class="cmp3-handle" data-h="b" role="slider" tabindex="0"
+             aria-label="3DGS-MCMC / VoD-3DGS-MCMC divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+      </div>
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>Deep Blending &mdash; Dr. Johnson.</strong>
+              VoD-3DGS-MCMC preserves tabletop specular highlights
+              <em>and</em> avoids the spurious geometry other methods
+              hallucinate underneath the table.
+            </p>
+          </div>
+        </div>
+        <div class="columns is-centered" style="margin-top: 1.5rem;">
+          <div class="column has-text-centered">
+            <div class="cmp3" style="aspect-ratio: 1558 / 1038;" role="group"
+           aria-label="Three-way comparison: GT, DBS, VoD-3DGS-MCMC. Drag the dividers to compare, or push them together to compare ground truth with ours.">
+        <img class="cmp3-img" src="./static/images/counter_vod.png" alt="Mip-NeRF360 Counter scene: a kitchen counter with a granite top, a steel kettle and bowls, and bagged food. Ground truth, DBS, and VoD-3DGS-MCMC; the window reflections on the glossy granite are missing in DBS and recovered by VoD-3DGS-MCMC.">
+        <img class="cmp3-img cmp3-mid" src="./static/images/counter_baseline.png" alt="">
+        <img class="cmp3-img cmp3-left" src="./static/images/counter_gt.png" alt="">
+        <span class="cmp3-label cmp3-label-left">GT</span>
+        <span class="cmp3-label cmp3-label-mid">DBS</span>
+        <span class="cmp3-label cmp3-label-right">VoD-3DGS-MCMC</span>
+        <div class="cmp3-handle" data-h="a" role="slider" tabindex="0"
+             aria-label="GT / DBS divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+        <div class="cmp3-handle" data-h="b" role="slider" tabindex="0"
+             aria-label="DBS / VoD-3DGS-MCMC divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+      </div>
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>Mip-NeRF360 &mdash; Counter.</strong>
+              The window&rsquo;s reflection on the glossy granite countertop
+              is lost by DBS and recovered by VoD-3DGS-MCMC &mdash;
+              up to <strong>+5.8&nbsp;dB PSNR</strong> in that region.
+            </p>
+          </div>
+          <div class="column has-text-centered">
+            <div class="cmp3" style="aspect-ratio: 1236 / 822;" role="group"
+           aria-label="Three-way comparison: GT, 3DGS-MCMC, VoD-3DGS-MCMC. Drag the dividers to compare, or push them together to compare ground truth with ours.">
+        <img class="cmp3-img" src="./static/images/bicycle_vod.png" alt="Mip-NeRF360 Bicycle scene: a black park bench with glossy white slats on grass, a bicycle behind it. Ground truth, 3DGS-MCMC, and VoD-3DGS-MCMC; VoD-3DGS-MCMC keeps the bright highlights on the bench slats, while fine grass looks similar across methods.">
+        <img class="cmp3-img cmp3-mid" src="./static/images/bicycle_baseline.png" alt="">
+        <img class="cmp3-img cmp3-left" src="./static/images/bicycle_gt.png" alt="">
+        <span class="cmp3-label cmp3-label-left">GT</span>
+        <span class="cmp3-label cmp3-label-mid">3DGS-MCMC</span>
+        <span class="cmp3-label cmp3-label-right">VoD-3DGS-MCMC</span>
+        <div class="cmp3-handle" data-h="a" role="slider" tabindex="0"
+             aria-label="GT / 3DGS-MCMC divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+        <div class="cmp3-handle" data-h="b" role="slider" tabindex="0"
+             aria-label="3DGS-MCMC / VoD-3DGS-MCMC divider" aria-valuemin="0" aria-valuemax="100">
+          <span class="cmp3-knob" aria-hidden="true">&lsaquo;&rsaquo;</span>
+        </div>
+      </div>
+            <p class="is-size-7" style="margin-top: 0.5rem;">
+              <strong>Mip-NeRF360 &mdash; Bicycle.</strong>
+              Highlights on the glossy bench slats improve by up to
+              <strong>+3&nbsp;dB PSNR</strong>; fine grass, a known
+              limitation shared with 3DGS, is slightly worse, so the
+              full-image score is on par with the baseline.
+            </p>
+          </div>
+        </div>
+        <p class="is-size-7 has-text-centered" style="color: #777; font-style: italic; margin-top: -0.5rem;">
+          <i class="fas fa-hand-pointer"></i>&nbsp;Drag the dividers to compare; push them together to compare GT with ours directly,
+          and pull the small dotted knob to split them again.
+          Full-scene metrics look modest because most pixels are
+          diffuse. The localized gains tell the real story: specular
+          regions improve by <strong>+2.5 to +5&nbsp;dB</strong>
+          across scenes.
+        </p>
+
+        <!-- Efficiency table -->
+        <div class="content has-text-centered" style="margin-top: 2rem;">
+          <h3 class="title is-5">Efficiency on Mip-NeRF360</h3>
+          <div style="overflow-x: auto;">
+          <table class="table is-bordered is-narrow is-hoverable results-table" style="font-size: 0.9rem; width: 50%; min-width: min(100%, 320px); margin: 0 auto;">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>FPS&nbsp;&uarr;</th>
+                <th>Memory&nbsp;[MB]&nbsp;&darr;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="method">Mip-NeRF360</td><td>0.06</td><td class="rank-1">8.6</td></tr>
+              <tr><td class="method">3DCS*</td><td class="rank-3">25</td><td>666</td></tr>
+              <tr><td class="method">3DGS*</td><td class="rank-1">113</td><td class="rank-3">649</td></tr>
+              <tr class="ours group-sep"><td class="method"><strong>VoD-3DGS (Ours)</strong></td><td class="rank-2">96</td><td class="rank-2">621</td></tr>
+              <tr class="double-sep"><td class="method">3DGS-MCMC*</td><td class="rank-1">158</td><td class="rank-3">736</td></tr>
+              <tr><td class="method">DBS*</td><td class="rank-3">93</td><td class="rank-2">356</td></tr>
+              <tr><td class="method">Spec-Gaussian*</td><td>22</td><td>776</td></tr>
+              <tr><td class="method">IBGS*</td><td>25</td><td class="rank-1">320</td></tr>
+              <tr class="ours group-sep"><td class="method"><strong>VoD-3DGS-MCMC (Ours)</strong></td><td class="rank-2">156</td><td>764</td></tr>
+            </tbody>
+          </table>
+          </div>
+          <p class="is-size-7" style="margin-top: 0.5rem;">
+            <strong>Efficiency.</strong>
+            Colours as above, ranked within each section
+            (<span class="swatch rank-1">best</span>
+            <span class="swatch rank-2">second</span>
+            <span class="swatch rank-3">third</span>).
+            Real-time (96&ndash;156&nbsp;FPS) without custom CUDA kernels.
+            VoD-3DGS is about <strong>4&times; faster than 3DCS</strong>, the
+            fastest of the specular-focused 3DGS methods, and
+            <strong>uses less memory than vanilla 3DGS</strong>
+            (621 vs. 649&nbsp;MB): the specular-to-diffuse transition and
+            the regularization of view-dependent terms strip those
+            parameters from the majority of the scene. The MCMC variant keeps its 3DGS-MCMC base's
+            speed (156 vs. 158&nbsp;FPS) with a small memory overhead
+            (764 vs. 736&nbsp;MB), while being
+            <strong>&gt;6&times; faster</strong> than Spec-Gaussian
+            and IBGS, and 1.5&times; faster than DBS.
+          </p>
+        </div>
+
+      </div>
+    </div>
+    <!--/ Results. -->
+
+
+
+
+    <!-- Related Work. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3" id="related">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            VoD-3DGS sits at the intersection of three lines of work.
+          </p>
+          <ul>
+            <li>
+              <strong>The 3DGS foundation.</strong>
+              <a href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/">Kerbl&nbsp;et&nbsp;al. (SIGGRAPH&nbsp;2023, 3DGS)</a>
+              introduced the explicit Gaussian representation we build on;
+              <a href="https://ubc-vision.github.io/3dgs-mcmc/">Kheradmand&nbsp;et&nbsp;al. (NeurIPS&nbsp;2024, 3DGS-MCMC)</a>
+              provides the MCMC-based density control that our MCMC variant extends.
+            </li>
+            <li>
+              <strong>Specular 3DGS, with heavier machinery.</strong>
+              <a href="https://arxiv.org/abs/2311.17977">Jiang&nbsp;et&nbsp;al. (CVPR&nbsp;2024, GaussianShader)</a>,
+              <a href="https://arxiv.org/abs/2402.15870">Yang&nbsp;et&nbsp;al. (2024, Spec-Gaussian)</a>,
+              and the
+              <a href="https://3dgs-ir.github.io/">GS-IR</a>
+              /
+              <a href="https://arxiv.org/abs/2410.21494">GUS-IR</a>
+              line all handle view-dependent effects, but with learned shading
+              functions, neural residuals, or deferred-shading passes that
+              cost real-time performance.
+            </li>
+            <li>
+              <strong>Prior view-dependent opacity.</strong>
+              <a href="https://textured-gs.github.io/">Textured-GS</a>
+              and <a href="https://arxiv.org/abs/2412.10507">Textured&nbsp;Gaussians</a>
+              both propose per-Gaussian spatial opacity variation; neither
+              handles view-dependent specular variation end-to-end.
+            </li>
+            <li>
+              <strong>The SGGX distribution.</strong>
+              <a href="https://research.nvidia.com/publication/2015-08_sggx-microflake-distribution">Heitz&nbsp;et&nbsp;al. (SIGGRAPH&nbsp;2015, SGGX)</a>
+              represents anisotropic microflake media with a 3&times;3
+              symmetric positive-definite matrix &mdash; the physical
+              inspiration for our opacity parameterization.
+            </li>
+            <li>
+              <strong>Keypoint matching for L<sub>vc</sub>.</strong>
+              <a href="https://arxiv.org/abs/2306.13643">Lindenberger&nbsp;et&nbsp;al. (ICCV&nbsp;2023, LightGlue)</a>
+              provides the cross-view correspondence we use to pair
+              consistent viewing directions in the view-consistency loss.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!--/ Related Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title" id="bibtex">BibTeX</h2>
+    <pre style="white-space: pre-wrap; word-break: break-word;"><code>@inproceedings{nowak2027vod3dgs,
+  author    = {Nowak, Mateusz and Cadet, Xavier and Chin, Peter},
+  title     = {{VoD-3DGS}: View-Dependent Opacity for {3D} Gaussian Splatting In the Wild},
+  booktitle = {Winter Conference on Applications of Computer Vision (WACV)},
+  year      = {2027},
+}</code></pre>
+  </div>
+</section>
+
+
+<section class="section" id="acknowledgments">
+  <div class="container is-max-desktop content">
+    <h2 class="title is-5">Acknowledgments</h2>
+    <p class="is-size-6">
+      We thank Wojciech Jarosz for his valuable guidance and insightful discussions
+      on the SGGX microflake distribution throughout this project. 
+      This research was funded by the Defense Advanced Research Projects Agency (DARPA),
+      under contract W912CG23C0031.
+    </p>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="#">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="#" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This page borrows the
+            <a href="https://github.com/nerfies/nerfies.github.io">Nerfies project page template</a>;
+            credit to the original authors.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<script>
+  // Three-way comparison slider: left = GT, middle = baseline, right = ours.
+  // Push the two dividers together and they merge into one (GT vs. ours);
+  // drag the small knob above the merged divider to break it apart again.
+  document.querySelectorAll('.cmp3').forEach((el) => {
+    const MERGE = 2.5;                     // dividers closer than this (%) merge
+    let a = 33, b = 67, merged = false;
+    let active = null, anchor = 0, lastMoved = 'a';
+    const left = el.querySelector('.cmp3-left');
+    const mid  = el.querySelector('.cmp3-mid');
+    const [hA, hB] = el.querySelectorAll('.cmp3-handle');
+    const [lL, lM, lR] = ['left', 'mid', 'right'].map(k => el.querySelector('.cmp3-label-' + k));
+    const base = lM.textContent.trim();
+
+    // Merged divider: one main knob (moves the pair) + one small split knob above it.
+    const mh = document.createElement('div');
+    mh.className = 'cmp3-merged';
+    mh.hidden = true;
+    const split = (pos) =>
+      `<span class="cmp3-mini cmp3-mini-${pos}" role="slider" tabindex="0"
+             aria-label="Split off ${base}" title="Drag to bring back ${base}"
+             aria-valuemin="0" aria-valuemax="100">&lsaquo;&rsaquo;</span>`;
+    mh.innerHTML =
+      split('top') +
+      `<span class="cmp3-knob" role="slider" tabindex="0"
+             aria-label="${lL.textContent.trim()} / ${lR.textContent.trim()} divider"
+             aria-valuemin="0" aria-valuemax="100">&lsaquo;&rsaquo;</span>`;
+    el.appendChild(mh);
+    const mKnob = mh.querySelector('.cmp3-knob');
+    const minis = mh.querySelectorAll('.cmp3-mini');
+
+    const clamp = (v) => Math.max(0, Math.min(100, v));
+    const fits = (label, pct) =>
+      (label.style.opacity = pct / 100 * el.clientWidth > label.offsetWidth + 16 ? 1 : 0);
+
+    function syncFocus(f) {
+      if (!f || !el.contains(f)) return;
+      if (merged && (f === hA || f === hB)) mKnob.focus({ preventScroll: true });
+      else if (!merged && mh.contains(f)) (lastMoved === 'a' ? hA : hB).focus({ preventScroll: true });
+    }
+
+    function render() {
+      const focused = document.activeElement;   // read before anything gets hidden
+      left.style.clipPath = `inset(0 ${100 - a}% 0 0)`;
+      mid.style.clipPath  = `inset(0 ${100 - b}% 0 0)`;
+      hA.hidden = hB.hidden = merged;
+      mh.hidden = !merged;
+      hA.style.left = a + '%';  hA.setAttribute('aria-valuenow', Math.round(a));
+      hB.style.left = b + '%';  hB.setAttribute('aria-valuenow', Math.round(b));
+      mh.style.left = a + '%';
+      [mKnob, ...minis].forEach(k => k.setAttribute('aria-valuenow', Math.round(a)));
+      el.classList.toggle('is-merged', merged);
+      lM.style.left = `calc(${a}% + 8px)`;
+      fits(lL, a);
+      if (merged) lM.style.opacity = 0; else fits(lM, b - a);
+      fits(lR, 100 - b);
+      syncFocus(focused);
+    }
+
+    // Move according to the current drag mode; returns the (possibly new) mode.
+    //   'a' / 'b' : one divider; colliding with the other merges -> 'pair'
+    //   'pair'    : merged divider, both move together
+    //   'split'   : pulling a divider out of the merged one at `anchor`
+    function drag(mode, p) {
+      p = clamp(p);
+      if (mode === 'pair') {
+        a = b = p;
+      } else if (mode === 'split') {
+        if (Math.abs(p - anchor) < MERGE) { merged = true; a = b = anchor; }
+        else {
+          merged = false;
+          lastMoved = p < anchor ? 'a' : 'b';
+          a = Math.min(p, anchor); b = Math.max(p, anchor);
+        }
+      } else if (mode === 'a') {
+        if (b - p < MERGE) { merged = true; a = b = Math.max(p, b); mode = 'pair'; }
+        else a = p;
+      } else if (mode === 'b') {
+        if (p - a < MERGE) { merged = true; a = b = Math.min(p, a); mode = 'pair'; }
+        else b = p;
+      }
+      render();
+      return mode;
+    }
+
+    const pct = (e) => {
+      const r = el.getBoundingClientRect();
+      return (e.clientX - r.left) / r.width * 100;
+    };
+
+    el.addEventListener('pointerdown', (e) => {
+      const p = pct(e);
+      if (e.target.closest('.cmp3-mini')) {
+        active = 'split'; anchor = a;          // don't move until dragged
+        e.target.closest('.cmp3-mini').focus({ preventScroll: true });
+      } else if (merged) {
+        active = drag('pair', p);
+        mKnob.focus({ preventScroll: true });
+      } else {
+        const h = e.target.closest('.cmp3-handle');
+        active = h ? h.dataset.h : (Math.abs(p - a) <= Math.abs(p - b) ? 'a' : 'b');
+        lastMoved = active;
+        (active === 'a' ? hA : hB).focus({ preventScroll: true });
+        active = drag(active, p);
+      }
+      el.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    el.addEventListener('pointermove', (e) => { if (active) active = drag(active, pct(e)); });
+    ['pointerup', 'pointercancel'].forEach(t => el.addEventListener(t, () => (active = null)));
+
+    const KEYS = (cur, step) =>
+      ({ ArrowLeft: cur - step, ArrowRight: cur + step, Home: 0, End: 100 });
+
+    [hA, hB].forEach((h) => h.addEventListener('keydown', (e) => {
+      const which = h.dataset.h;
+      const next = KEYS(which === 'a' ? a : b, e.shiftKey ? 10 : 2)[e.key];
+      if (next === undefined) return;
+      lastMoved = which;
+      drag(which, next);
+      e.preventDefault();
+    }));
+    mKnob.addEventListener('keydown', (e) => {
+      const next = KEYS(a, e.shiftKey ? 10 : 2)[e.key];
+      if (next === undefined) return;
+      drag('pair', next);
+      e.preventDefault();
+    });
+    minis.forEach((m) => m.addEventListener('keydown', (e) => {
+      const next = KEYS(a, e.shiftKey ? 10 : 4)[e.key];   // step > MERGE so it splits
+      if (next === undefined) return;
+      anchor = a;
+      drag('split', next);
+      e.preventDefault();
+    }));
+
+    window.addEventListener('resize', render);
+    render();
+  });
+</script>
+
+</body>
+</html>
