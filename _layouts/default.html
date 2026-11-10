@@ -97,7 +97,22 @@
               {{post.authors}}
 
               <br>
-              <em>{{post.venue}}</em>, {{ post.date | date: "%Y" }}
+              {% comment %}
+                Year shown next to the venue: taken from `published_date` (the
+                conference / publication date) when set, otherwise from `date`.
+                Posts are still ordered by `date` (when they were added).
+                A bare year (published_date: 2027) is used as-is, because the
+                `date` filter would read a plain number as a 1970 Unix timestamp.
+              {% endcomment %}
+              {% capture pub_raw %}{{ post.published_date }}{% endcapture %}
+              {% if pub_raw == "" %}
+                {% assign pub_year = post.date | date: "%Y" %}
+              {% elsif pub_raw.size == 4 %}
+                {% assign pub_year = pub_raw %}
+              {% else %}
+                {% assign pub_year = post.published_date | date: "%Y" %}
+              {% endif %}
+              <em>{{post.venue}}</em>, {{ pub_year }}
               <br>
               {% assign sep = "" %}
               {% if post.paper %}
@@ -239,4 +254,3 @@
 </body>
 
 </html>
-

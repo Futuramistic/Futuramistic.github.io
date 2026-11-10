@@ -2,6 +2,7 @@
 layout: post
 title:  "Explore Reinforced: Equilibrium Approximation with Reinforcement Learning"
 date:   2025-10-16 22:21:59 +00:00
+published_date: 2025-10-16
 image: /images/ExpRL.jpg
 categories: research
 authors: "<strong>Mateusz Nowak*</strong>, Qintong Xie*, Emma Graham, Ryan Yu, Michelle Yilin Feng, Roy Leibovitz, Xavier Cadet, Peter Chin"

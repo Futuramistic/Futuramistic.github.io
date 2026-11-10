@@ -2,6 +2,7 @@
 layout: post
 title:  "ABCD: All Biases Come Disguised"
 date:   2026-02-19 22:21:59 +00:00
+published_date: 2026-07-06
 image: /images/abcd_thumbnail.png
 categories: research
 authors: "<strong>Mateusz Nowak*</strong>, Xavier Cadet*, Peter Chin"
